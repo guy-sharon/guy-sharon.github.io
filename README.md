@@ -1,1 +1,0 @@
-# guy-sharon.github.io
