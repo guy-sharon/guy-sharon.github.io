@@ -13,11 +13,44 @@
     }
     h1 { color: #2a2344; font-size : 2.5em; margin-top: 30px; }
   </style>
+  <script>
+        // Function to check user's location
+        function checkLocation(destLat, destLng, placeName) {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                // Calculate distance in km using Haversine formula
+                const R = 6371; // Earth radius in km
+                const dLat = (destLat - userLat) * Math.PI / 180;
+                const dLng = (destLng - userLng) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(userLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
+                          Math.sin(dLng/2) * Math.sin(dLng/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const distance = R * c;
+
+                if (distance > 1) { // if more than 1 km away
+                    alert(`You are ${distance.toFixed(2)} km away from ${placeName}. Are you sure you want to go?`);
+                } else {
+                    
+                    window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
+                }
+            }, () => {
+                alert('Unable to retrieve your location.');
+            });
+        }
+    </script>
 </head>
 <body>
   <h1>מדריך טיולים</h1>
   <h2>פרק א</h2>
-  <button onclick="openLink('https://waze.com/ul?ll=32.3913,34.9221&navigate=yes')">1</button>
+  <button onclick="checkLocation(32.3913, 34.9221, 'Coffee House')">1</button>
   <button onclick="openLink('https://waze.com/ul?ll=32.3913,34.9221&navigate=yes')">2</button>
   <button onclick="openLink('https://waze.com/ul?ll=32.3913,34.9221&navigate=yes')">3</button>
   <h2>פרק ב</h2>
