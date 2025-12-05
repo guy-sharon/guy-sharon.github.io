@@ -20,7 +20,7 @@
                 alert('Geolocation is not supported by your browser.');
                 return;
             }
-
+            navigator.geolocation.getCurrentPosition(success, error, {maximumAge: 60000});
             navigator.geolocation.getCurrentPosition((position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
@@ -45,6 +45,9 @@
                 }
             }, () => {
                 alert('Unable to retrieve your location.');
+            },
+            {
+                maximumAge: 60000,  // use cached location up to 60s
             });
         }
     </script>
