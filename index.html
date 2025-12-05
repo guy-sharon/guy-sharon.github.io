@@ -36,9 +36,11 @@
                 const distance = R * c;
 
                 if (distance > 1) { // if more than 1 km away
-                    alert(`You are ${distance.toFixed(2)} km away from ${placeName}. Are you sure you want to go?`);
+                    const proceed = confirm(`אתם במרחק של ${distance.toFixed(2)} ק"מ מ${placeName}. האם אתם בטוחים שברצונכם להגיע לשם?`);
+                    if (proceed) {
+                        window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
+                    }
                 } else {
-                    
                     window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
                 }
             }, () => {
