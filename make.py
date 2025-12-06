@@ -3,6 +3,8 @@ import folium
 import webbrowser
 import numpy as np
 
+DEBUG = False
+
 title = "מדריך טיולים"
 places = [
     ############################## DAY 1 ##############################
@@ -27,7 +29,7 @@ places = [
             [59.64773329594539, 8.016732242814161],
             [59.70826557919452, 7.847894323420936],
             [59.758831062258956, 7.5983078338831245]], 
-     "verify_dists_km": [15,15,15,15,15,15,15]},
+     "verify_dists_km": [10]},
     
     None,
     
@@ -58,7 +60,7 @@ places = [
             [60.3840471817699, 6.248184937015956],
             [60.37295659022326, 6.138236712015276]
      ],
-     "verify_dists_km": [7]},
+     "verify_dists_km": [6]},
 
     {"name": "Bergen", "hebrew_name": "ברגן",
      "location": [60.39118163725193, 5.3216444182500835], 
@@ -98,12 +100,52 @@ places = [
     
     ############################### DAY 4 ##############################
     {"name": "Bryggen", "hebrew_name": "מדרחוב בריגן",
-     "location": [60.397563989685075, 5.324544119062977], 
-     "verify_locations": [
-            [60.39701413593635, 5.3249930481642185],
-     ],
-     "verify_dists_km": [3], 
+     "location": [60.397563989685075, 5.324544119062977],
      "waze": False},
+    
+    {"name": "Fishmarket in Bergen", "hebrew_name": "שוק הדגים בברגן",
+     "location": [60.394751321111414, 5.325181579382361],
+     "waze": False},
+    
+    {"name": "Fløibanen", "hebrew_name": "רכבל פלויבנן",
+     "location": [60.39635497566565, 5.328403478094899],
+     "waze": False},
+    
+    {"name": "The Unicorn Fish Restaurant", "hebrew_name": "מסעדת יוניקורן פיש",
+     "location": [60.39721576580881, 5.323410199767801], 
+     "waze": False},
+    
+    None,
+    
+    ############################### DAY 5 ##############################
+    {"name": "Viking Valley", "hebrew_name": "עמק הוויקינגים",
+     "location": [60.87871641194426, 6.842783130309827], 
+     "verify_locations": [
+            [60.40066570873266, 5.323763179332352], # 1
+            [60.462177279559754, 5.325596302854006], # 2
+            [60.45313875912446, 5.442916208239834], # 3
+            [60.42781751490292, 5.5620692371473135], # 4
+            [60.45585057942066, 5.734382848182747], # 5
+            [60.53168966268797, 5.728883477617786], # 6
+            [60.604652344445846, 5.822372777222117], # 7
+            [60.63702736803587, 5.9580239178244785], # 8
+            [60.64691325641476, 6.148668764076448], # 9
+            [60.62623930374835, 6.3338142397634565], # 10
+            [60.68463149136252, 6.456633515714244], # 11
+            [60.743813781079474, 6.493295986147315], # 12
+            [60.78947093617446, 6.561121556448497], # 13
+            [60.80735796205203, 6.645445238444559], # 14
+            [60.85024607629493, 6.764598267352039], # 15
+     ],
+     "verify_dists_km": [7]},
+
+    {"name": "Flåm", "hebrew_name": "פלם",
+     "location": [60.861997702411145, 7.112358780295647], 
+     "verify_locations": [
+            [60.891633364294144, 7.038671207753574], # 1
+            [60.88234900079604, 6.896964710116111], # 2
+     ],
+     "verify_dists_km": [7]},
     
 ]
 TAB = "  "
@@ -125,10 +167,19 @@ def make_place_map(place, m=None):
             tiles="OpenStreetMap"  # Default map with names
         )
     
-     # location itself
+    # location itself
+    if len(place['verify_locations']) == 0:
+        self_radius = 800
+        opacity = 0.2
+        color = "torquoise"
+    else:
+        self_radius = 1e3 if DEBUG else 3e3
+        opacity = 0.5
+        color = "blue"
+    
     folium.Circle(
-        location=place['location'], radius=3*1e3,
-        color="blue", fill=True, fill_opacity=0.5,
+        location=place['location'], radius=self_radius,
+        color=color, fill=True, fill_opacity=opacity,
         popup=place['name']
     ).add_to(m)
 
@@ -155,12 +206,12 @@ def make_place_plot_html(place):
     return os.path.abspath(plotfile)
 
 def open_html(file):
-    webbrowser.open(f"file://{file}")
+    webbrowser.open(f"file://{os.path.abspath(file)}")
     
 def plot_places(places):
     for place in places:
         plotfile = make_place_plot_html(place)
-        webbrowser.open(f"file://{plotfile}")
+        open_html(plotfile)
 
     m = make_place_map(places[0])
     for place in places[1:]:
@@ -217,6 +268,9 @@ def process_places():
             continue
         if "waze" not in places[i]:
             places[i]["waze"] = True
+        if 'verify_locations' not in places[i]:
+            places[i]['verify_locations'] = []
+            places[i]['verify_dists_km'] = []
         places[i]["id"] = id
         places[i]["chapter"] = chapter
         if len(places[i]['verify_dists_km']) == 1:
@@ -260,14 +314,34 @@ def make_body(places):
         body += 3*TAB + make_button(place) + "\n"
     return body
 
+def norway_to_israel(location):
+    # Roughly translate Norway coordinates from Norway to Israel
+    lat, lon = location
+    new_lat = 31.8483 + (lat - 60.0) * 0.7
+    new_lon = 35.1037 + (lon - 10.0) * 0.1
+    return [new_lat, new_lon]
+
+def make_debug():
+    global title
+    title = "DEBUG!!!"
+    for i in range(len(places)):
+        places[i]['location'] = norway_to_israel(places[i]['location'])
+        for j in range(len(places[i]['verify_locations'])):
+            places[i]['verify_locations'][j] = norway_to_israel(
+                places[i]['verify_locations'][j])
+            places[i]['verify_dists_km'][j] /= 3
+            
 def main():
     process_places()
+    if DEBUG:
+        make_debug()
     template = get_template()
     body = make_body(places)
     final_html = template.replace("{{BODY}}", body)
     htmlfile = write_index_html(final_html)
-    open_html(htmlfile)
-    # plot_places(places)
+    
+    # open_html(htmlfile)
+    plot_places(places)
     
     
 if __name__ == "__main__":

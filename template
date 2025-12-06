@@ -16,6 +16,15 @@
   
   <script>
         // Function to check user's location
+        function open_navigation(destLat, destLng, waze) {
+            if (waze) {
+                window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
+            }
+            else {
+                window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=walking`;
+            }
+        }
+
         function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, waze) {
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser.');
@@ -27,9 +36,11 @@
 
                 // Calculate distance in km using Haversine formula
                 const R = 6371; // Earth radius in km
-                for (let i = 0; i < verified_locations.length; i++) {
-                    const vLat = verified_locations[i][0];
-                    const vLng = verified_locations[i][1];
+                all_locs = verified_locations.slice();
+                all_locs.push([destLat, destLng]);
+                for (let i = 0; i < all_locs.length; i++) {
+                    const vLat = all_locs[i][0];
+                    const vLng = all_locs[i][1];
                     const dLatV = (vLat - userLat) * Math.PI / 180;
                     const dLngV = (vLng - userLng) * Math.PI / 180;
                     const aV = Math.sin(dLatV/2) * Math.sin(dLatV/2) +
@@ -40,34 +51,25 @@
                     console.log(distanceV);
                     if (distanceV <= verify_dists_km[i]) {
                         // User is within a verified location
-                        if (waze) {
-                            window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
-                        }
-                        else {
-                            window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
-                        }
+                        open_navigation(destLat, destLng, waze);
                         return;
                     }
                 }
-                
+
                 var msg = "האם אתם בטוחים שברצונכם להגיע ל"
                 msg += `${placeName}`
                 msg += "?"
                 const proceed = confirm(msg);
                 if (proceed) {
-                    if (waze) {
-                        window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
-                    }
-                    else {
-                        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
-                    }
+                    open_navigation(destLat, destLng, waze);
                 }
 
             }, () => {
-                alert('Unable to retrieve your location.');
+                open_navigation(destLat, destLng, waze);
             },
             {
                 maximumAge: 60000,  // use cached location up to 60s
+                timeout: 500
             });
         }
     </script>
