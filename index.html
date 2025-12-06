@@ -13,9 +13,10 @@
     }
     h1 { color: #2a2344; font-size : 2.5em; margin-top: 30px; }
   </style>
+  
   <script>
         // Function to check user's location
-        function checkLocation(destLat, destLng, placeName) {
+        function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, waze) {
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser.');
                 return;
@@ -26,25 +27,42 @@
 
                 // Calculate distance in km using Haversine formula
                 const R = 6371; // Earth radius in km
-                const dLat = (destLat - userLat) * Math.PI / 180;
-                const dLng = (destLng - userLng) * Math.PI / 180;
-                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                          Math.cos(userLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
-                          Math.sin(dLng/2) * Math.sin(dLng/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                const distance = R * c;
-
-                if (distance > 1) { // if more than 1 km away
-                    var msg = "האם אתם בטוחים שברצונכם להגיע ל"
-                    msg += `${placeName}`
-                    msg += "?"
-                    const proceed = confirm(msg);
-                    if (proceed) {
+                for (let i = 0; i < verified_locations.length; i++) {
+                    const vLat = verified_locations[i][0];
+                    const vLng = verified_locations[i][1];
+                    const dLatV = (vLat - userLat) * Math.PI / 180;
+                    const dLngV = (vLng - userLng) * Math.PI / 180;
+                    const aV = Math.sin(dLatV/2) * Math.sin(dLatV/2) +
+                              Math.cos(userLat * Math.PI / 180) * Math.cos(vLat * Math.PI / 180) *
+                              Math.sin(dLngV/2) * Math.sin(dLngV/2);
+                    const cV = 2 * Math.atan2(Math.sqrt(aV), Math.sqrt(1-aV));
+                    const distanceV = R * cV;
+                    console.log(distanceV);
+                    if (distanceV <= verify_dists_km[i]) {
+                        // User is within a verified location
+                        if (waze) {
+                            window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
+                        }
+                        else {
+                            window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
+                        }
+                        return;
+                    }
+                }
+                
+                var msg = "האם אתם בטוחים שברצונכם להגיע ל"
+                msg += `${placeName}`
+                msg += "?"
+                const proceed = confirm(msg);
+                if (proceed) {
+                    if (waze) {
                         window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
                     }
-                } else {
-                    window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
+                    else {
+                        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;
+                    }
                 }
+
             }, () => {
                 alert('Unable to retrieve your location.');
             },
@@ -57,12 +75,14 @@
 <body>
   <h1>מדריך טיולים</h1>
     <h2>פרק א</h2>
-      <button onclick="checkLocation(59.579631217030496, 9.173712088688937, 'כנסיית העץ העתיקה')">1</button>
-      <button onclick="checkLocation(59.76946921278479, 7.389044921790655, 'מלון ווגסלידטון')">2</button>
+      <button onclick="checkLocation(59.579631217030496, 9.173712088688937, 'כנסיית העץ העתיקה', [[59.91028747001133, 10.759149875920937], [59.84136536105944, 10.451532708227695], [59.76953468860811, 10.20983348823977], [59.76953468833935, 9.902216326736134], [59.6698211140157, 9.649530779118379], [59.59484073364515, 9.391352091948987]], [10, 10, 10, 10, 10, 11], 1)">1</button>
+      <button onclick="checkLocation(59.76946921278479, 7.389044921790655, 'מלון ווגסלידטון', [[59.604428973465716, 9.002843569125318], [59.601952753759186, 8.714106257699223], [59.5213762499024, 8.479201326369518], [59.57718052131577, 8.227167910463688], [59.64773329594539, 8.016732242814161], [59.70826557919452, 7.847894323420936], [59.758831062258956, 7.5983078338831245]], [15, 15, 15, 15, 15, 15, 15], 1)">2</button>
     <h2>פרק ב</h2>
-      <button onclick="checkLocation(60.46673360531188, 7.068500369061384, 'איידפיורד')">3</button>
-      <button onclick="checkLocation(60.37024545975006, 6.108024022985264, 'מפלי שטיינסדלספוסן')">4</button>
-      <button onclick="checkLocation(60.39118163725193, 5.3216444182500835, 'ברגן')">5</button>
+      <button onclick="checkLocation(60.46673360531188, 7.068500369061384, 'איידפיורד', [[59.77074552110632, 7.387719303695958], [59.84671279436948, 7.041649983356277], [59.88256436250444, 6.657128516312186], [60.002248481060924, 6.5637447314586215], [60.177551313893375, 6.577477640995911], [60.33289670959683, 6.64064902486744], [60.47126610499866, 6.942773034687797]], [13, 13, 13, 13, 13, 13, 13], 1)">3</button>
+      <button onclick="checkLocation(60.37024545975006, 6.108024022985264, 'מפלי שטיינסדלספוסן', [[60.4671063415852, 7.071674703857783], [60.478164871044946, 6.9549949548774705], [60.4925353265063, 6.820364475284801], [60.51684005789785, 6.705928567631032], [60.46931834894866, 6.607199549263075], [60.441657420014856, 6.465837545690771], [60.41175714571005, 6.36486468599627], [60.3840471817699, 6.248184937015956], [60.37295659022326, 6.138236712015276]], [7, 7, 7, 7, 7, 7, 7, 7, 7], 1)">4</button>
+      <button onclick="checkLocation(60.39118163725193, 5.3216444182500835, 'ברגן', [[60.46444368600508, 7.070500607404774], [60.46997387537984, 6.913431714546659], [60.50203039840591, 6.803483489545979], [60.53736635829316, 6.729436725770012], [60.57597094201803, 6.637439231381687], [60.62993998410787, 6.500564910462472], [60.62773893200973, 6.312082239032736], [60.64534314264172, 6.11462420229682], [60.631040453818855, 5.9396045788263505], [60.59360340811992, 5.8161933058664035], [60.53957357600379, 5.728683494131168], [60.4743973485414, 5.7354150181108015], [60.44009965749914, 5.643417523722478], [60.4998206207743, 6.6733406926063985], [60.45669983789584, 6.55890478495263], [60.432350003256055, 6.419786622706872], [60.390248197799764, 6.27393693648148], [60.37149659381248, 6.09943492983304], [60.389774219066666, 5.9649563981270255], [60.378975043744816, 5.786772343616557], [60.39807884063268, 5.647250866971567], [60.421320513449416, 5.522858225143504], [60.446203886686334, 5.322821409230806], [60.30994200690759, 5.519496261850852], [60.23319478349703, 5.454281537155975], [60.309109392727244, 5.326183372523458], [60.39890918628314, 5.395103620022788]], [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7], 1)">5</button>
+    <h2>פרק ד</h2>
+      <button onclick="checkLocation(60.397563989685075, 5.324544119062977, 'מדרחוב בריגן', [[60.39701413593635, 5.3249930481642185]], [3], 0)">6</button>
 
   <script>
     function openLink(url) { window.location.href = url; }

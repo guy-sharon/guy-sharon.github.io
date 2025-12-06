@@ -92,6 +92,19 @@ places = [
             [60.39890918628314, 5.395103620022788]
      ],
      "verify_dists_km": [7]},
+    
+    None,
+    None,
+    
+    ############################### DAY 4 ##############################
+    {"name": "Bryggen", "hebrew_name": "מדרחוב בריגן",
+     "location": [60.397563989685075, 5.324544119062977], 
+     "verify_locations": [
+            [60.39701413593635, 5.3249930481642185],
+     ],
+     "verify_dists_km": [3], 
+     "waze": False},
+    
 ]
 TAB = "  "
 plots_dir = "plots"
@@ -141,6 +154,9 @@ def make_place_plot_html(place):
     m.save(plotfile)
     return os.path.abspath(plotfile)
 
+def open_html(file):
+    webbrowser.open(f"file://{file}")
+    
 def plot_places(places):
     for place in places:
         plotfile = make_place_plot_html(place)
@@ -151,7 +167,7 @@ def plot_places(places):
         m = make_place_map(place, m)
     overview_plotfile = os.path.join(plots_dir, "overview_map.html")
     m.save(overview_plotfile)
-    webbrowser.open(f"file://{os.path.abspath(overview_plotfile)}")
+    open_html(overview_plotfile)
     
 def number_to_hebrew_letters(n):
     HEBREW_NUMERALS = {
@@ -199,6 +215,8 @@ def process_places():
         if places[i] is None:
             chapter += 1
             continue
+        if "waze" not in places[i]:
+            places[i]["waze"] = True
         places[i]["id"] = id
         places[i]["chapter"] = chapter
         if len(places[i]['verify_dists_km']) == 1:
@@ -212,11 +230,16 @@ def get_template():
         return f.read()
     
 def write_index_html(txt):
-    with open("index.html", "w", encoding="utf-8") as f:
+    file = "index.html"
+    with open(file, "w", encoding="utf-8") as f:
         f.write(txt)
+    return os.path.abspath(file)
 
 def make_check_location(place):
-    params = place['location'] + [place['hebrew_name']]
+    # destLat, destLng, placeName, verified_locations, verify_dists_km, waze
+    params = place['location'] + [place['hebrew_name']] + \
+             [place['verify_locations'], place['verify_dists_km'], 
+              1 if place['waze'] else 0]
     params = [f"'{p}'" if isinstance(p, str) else p for p in params]
     params = [str(p) for p in params]
     s = f"checkLocation({', '.join(params)})"
@@ -242,8 +265,10 @@ def main():
     template = get_template()
     body = make_body(places)
     final_html = template.replace("{{BODY}}", body)
-    write_index_html(final_html)
-    plot_places(places)
+    htmlfile = write_index_html(final_html)
+    open_html(htmlfile)
+    # plot_places(places)
+    
     
 if __name__ == "__main__":
     main()
