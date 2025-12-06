@@ -35,7 +35,7 @@
                 const distance = R * c;
 
                 if (distance > 1) { // if more than 1 km away
-                    const msg = "האם אתם בטוחים שברצונכם להגיע ל"
+                    var msg = "האם אתם בטוחים שברצונכם להגיע ל"
                     msg += `${placeName}`
                     msg += "?"
                     const proceed = confirm(msg);
