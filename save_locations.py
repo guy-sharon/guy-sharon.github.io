@@ -8,12 +8,14 @@ def main():
 
     print("Clipboard logger started. Press Ctrl+C to stop.")
 
+    i = 1
     while True:
         try:
             text = pyperclip.paste()
             if text != last_text and text.strip() != "":
-                print(f"[{text}],")
+                print(f"[{text}], # {i}")
                 last_text = text
+                i += 1
             time.sleep(0.2)
         except KeyboardInterrupt:
             print("\nStopped.")

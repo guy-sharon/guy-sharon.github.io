@@ -35,7 +35,7 @@
                 const distance = R * c;
 
                 if (distance > 1) { // if more than 1 km away
-                    const msg = "האם אתם בטוחים שברצונכם להגיע ל"
+                    var msg = "האם אתם בטוחים שברצונכם להגיע ל"
                     msg += `${placeName}`
                     msg += "?"
                     const proceed = confirm(msg);
@@ -62,6 +62,7 @@
     <h2>פרק ב</h2>
       <button onclick="checkLocation(60.46673360531188, 7.068500369061384, 'איידפיורד')">3</button>
       <button onclick="checkLocation(60.37024545975006, 6.108024022985264, 'מפלי שטיינסדלספוסן')">4</button>
+      <button onclick="checkLocation(60.39118163725193, 5.3216444182500835, 'ברגן')">5</button>
 
   <script>
     function openLink(url) { window.location.href = url; }
