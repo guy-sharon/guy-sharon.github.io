@@ -52,10 +52,7 @@
     </script>
 </head>
 <body>
-  <h1>מדריך טיולים</h1>
-    <h2>פרק כא</h2>
-      <button onclick="checkLocation(32.3913, 34.9221, '1 - כנסיית העץ העתיקה')">1</button>
-
+  {{BODY}}
   <script>
     function openLink(url) { window.location.href = url; }
   </script>
