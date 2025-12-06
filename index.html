@@ -35,7 +35,10 @@
                 const distance = R * c;
 
                 if (distance > 1) { // if more than 1 km away
-                    const proceed = confirm(`אתם במרחק של ${distance.toFixed(2)} ק"מ מ\n'${placeName}'\n. האם אתם בטוחים שברצונכם להגיע לשם?`);
+                    const msg = "האם אתם בטוחים שברצונכם להגיע ל"
+                    msg += `${placeName}`
+                    msg += "?"
+                    const proceed = confirm(msg);
                     if (proceed) {
                         window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
                     }
@@ -53,8 +56,12 @@
 </head>
 <body>
   <h1>מדריך טיולים</h1>
-    <h2>פרק כא</h2>
-      <button onclick="checkLocation(32.3913, 34.9221, '1 - כנסיית העץ העתיקה')">1</button>
+    <h2>פרק א</h2>
+      <button onclick="checkLocation(59.579631217030496, 9.173712088688937, 'כנסיית העץ העתיקה')">1</button>
+      <button onclick="checkLocation(59.76946921278479, 7.389044921790655, 'מלון ווגסלידטון')">2</button>
+    <h2>פרק ב</h2>
+      <button onclick="checkLocation(60.46673360531188, 7.068500369061384, 'איידפיורד')">3</button>
+      <button onclick="checkLocation(60.37024545975006, 6.108024022985264, 'מפלי שטיינסדלספוסן')">4</button>
 
   <script>
     function openLink(url) { window.location.href = url; }

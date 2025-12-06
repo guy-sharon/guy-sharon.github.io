@@ -35,7 +35,10 @@
                 const distance = R * c;
 
                 if (distance > 1) { // if more than 1 km away
-                    const proceed = confirm(`אתם במרחק של ${distance.toFixed(2)} ק"מ מ\n'${placeName}'\n. האם אתם בטוחים שברצונכם להגיע לשם?`);
+                    const msg = "האם אתם בטוחים שברצונכם להגיע ל"
+                    msg += `${placeName}`
+                    msg += "?"
+                    const proceed = confirm(msg);
                     if (proceed) {
                         window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
                     }
