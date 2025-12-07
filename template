@@ -13,7 +13,11 @@
     }
     h1 { color: #2a2344; font-size : 2.5em; margin-top: 30px; }
   </style>
-  
+  <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
+    }
+</script>
   <script>
         // Function to check user's location
         function open_navigation(destLat, destLng, waze) {
