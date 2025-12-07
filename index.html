@@ -13,7 +13,27 @@
     }
     h1 { color: #2a2344; font-size : 2.5em; margin-top: 30px; }
   </style>
-  
+
+  <script>
+        async function registerServiceWorker() {
+            if ("serviceWorker" in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register(
+                    "sw.js"
+                );
+                console.log(
+                "Service Worker registered with scope:",
+                registration.scope
+                );
+            } catch (error) {
+                console.error("Service Worker registration failed:", error);
+            }
+            }
+        }
+
+        registerServiceWorker();
+  </script>
+
   <script>
         // Function to check user's location
         function open_navigation(destLat, destLng, waze) {
