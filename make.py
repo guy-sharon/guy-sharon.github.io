@@ -2,6 +2,8 @@ import os
 import folium
 import webbrowser
 import numpy as np
+from docx import Document
+import re
 
 DEBUG = False
 
@@ -18,6 +20,12 @@ places = [
             [59.6698211140157, 9.649530779118379],
             [59.59484073364515, 9.391352091948987]], 
      "verify_dists_km": [10,10,10,10,10,11]},
+    
+    {"name": "Notodden", "hebrew_name": "נוטודן",
+     "location": [59.559214890632845, 9.261338597651902], 
+     "verify_locations": 
+            [59.91028747001133, 10.759149875920937],
+     "verify_dists_km": [10]},
     
     {"name": "Vågslidtun Hotell AS", "hebrew_name": "מלון ווגסלידטון",
      "location": [59.76946921278479, 7.389044921790655], 
@@ -96,6 +104,25 @@ places = [
      "verify_dists_km": [7]},
     
     None,
+    ############################### DAY 3 ##############################
+    {"name": "Akvariet i Bergen", "hebrew_name": "האקווריום הלאומי בברגן",
+     "location": [60.39991067238998, 5.305273694648417], 
+     "verify_locations": [
+            [60.39536382611946, 5.324827734455982], # 1
+     ],
+     "verify_dists_km": [3]},
+    
+    {"name": "Radisson Blu Royal Hotel", "hebrew_name": "מלון רדיסון בלו רויאל",
+     "location": [60.39991067238998, 5.305273694648417], 
+     "verify_locations": [
+            [60.39536382611946, 5.324827734455982], # 1
+     ],
+     "verify_dists_km": [3]},
+    
+    {"name": "Mostraumen Fjord Cruise Meeting Point", "hebrew_name": "נקודת מפגש לשייט במפרץ מוסטראומן",
+     "location": [60.397803257417706, 5.32095634189529],
+     "waze": False},
+    
     None,
     
     ############################### DAY 4 ##############################
@@ -147,9 +174,108 @@ places = [
      ],
      "verify_dists_km": [7]},
     
+    None,
+    
+    ############################### DAY 6 ##############################
+    {"name": "Undredal", "hebrew_name": "אונדרדל",
+     "location": [60.95151192075261, 7.104576536199135], 
+     "verify_locations": [
+            [60.878391678358604, 7.105231529246835], # 1
+     ],
+     "verify_dists_km": [7]},
+    
+    {"name": "Flåm Railway", "hebrew_name": "רכבת פלם",
+     "location": [60.863025494522724, 7.114590114743707],
+     "waze": False},
+    
+    {"name": "Fjord Cruise Nærøyfjord", "hebrew_name": "שייט במפרץ נארוי",
+     "location": [60.86287674667964, 7.114571259500795],
+     "waze": False},
+    
+    None,
+    
+    ############################### DAY 7 ##############################
+    {"name": "Stegastein Sightseeing Bus Station C", "hebrew_name": "תחנת אוטובוס C תצפית סטגסטין",
+     "location": [60.863336897632855, 7.114682301430519],
+     "waze": False},
+    
+    {"name": "Borgund Stave Church", "hebrew_name": "כנסיית העץ בורגונד",
+     "location": [61.048663423927174, 7.814260366096567], 
+     "verify_locations": [
+            [60.88072412246814, 7.151068252896669], # 1
+            [60.900098465041886, 7.185400526739893], # 2
+            [60.91946104394952, 7.254065072693247], # 3
+            [60.93747770275531, 7.2980103832125724], # 4
+            [60.962150651335364, 7.346075566593083], # 5
+            [60.98813657163624, 7.41062024141834], # 6
+            [61.01476673988225, 7.449072388122749], # 7
+            [61.04403414117387, 7.483404661965972], # 8
+            [61.05467013871214, 7.524603390577839], # 9
+            [61.05068205789077, 7.587774774449368], # 10
+            [61.05068205789077, 7.653692740228355], # 11
+            [61.051346772880436, 7.708624378377511], # 12
+            [61.051346772880436, 7.769049180341582], # 13
+     ],
+     "verify_dists_km": [2.5]},
+    
+    {"name": "Hønefoss", "hebrew_name": "הונפוס",
+     "location": [60.16839036222407, 10.25563852229932], 
+     "verify_locations": [
+            [61.04870646784796, 7.8145721451872685], 
+            [61.09321481987947, 8.213787636541655], # 1
+            [61.07828838258828, 8.628349570917184], # 2
+            [60.95862320943594, 8.407837903696157], # 3
+            [61.007826014149096, 8.919424971648938], # 4
+            [60.8857489981, 8.743015637872118], # 5
+            [60.89647624937489, 9.184038972314168], # 6
+            [60.76320314932188, 8.976758005126406], # 7
+            [60.79549758113771, 9.44424273963498], # 8
+            [60.63153685078923, 9.206090139036272], # 9
+            [60.60557178290706, 9.70003627361137], # 10
+            [60.45586661850836, 9.43983250629056], # 11
+            [60.44281604369537, 9.916137707487977], # 12
+            [60.305468131848905, 9.744138607055577], # 13
+            [60.26393202382515, 10.039624241131753], # 14
+     ],
+     "verify_dists_km": [16]},
 ]
 TAB = "  "
 plots_dir = "plots"
+
+def pop_first_location_indicator(content):
+    match = re.search(r"\[(\d+)\]", content)
+    if match:
+        return content[:match.start()], \
+               content[match.end():], \
+               int(match.group(1))
+    raise Exception("No location indicator found")
+
+def validate_word(docx_filename):
+    content = docx_to_txt_docx_method(docx_filename).lower()
+    for place in places:
+        if place is None:
+            continue
+        name = place['name'].lower()
+        assert name in content, f"Place name '{name}' (id {place['id']}) not found in {docx_filename}"
+        ind = content.index(name)
+        
+        # Find the last occurrence of [<number>] before this place name
+        matches = list(re.finditer(r"\[(\d+)\]", content[:ind]))
+        if matches:
+            li = int(matches[-1].group(1))
+            assert li == place['id'], \
+                f"Location indicator mismatch for '{name}': expected {place['id']}, found {li}"
+        
+def docx_to_txt_docx_method(docx_filename):
+    document = Document(docx_filename)
+    full_text = []
+    for para in document.paragraphs:
+        full_text.append(para.text)
+
+    # Join paragraphs with a newline character
+    content = '\n'.join(full_text)
+    return content
+
 
 def rhex(a,b):
     return "{:02x}".format(np.random.randint(a, b))
@@ -209,10 +335,11 @@ def open_html(file):
     webbrowser.open(f"file://{os.path.abspath(file)}")
     
 def plot_places(places):
-    for place in places:
+    for place in places[:]:
         plotfile = make_place_plot_html(place)
         open_html(plotfile)
 
+    # overview
     m = make_place_map(places[0])
     for place in places[1:]:
         m = make_place_map(place, m)
@@ -306,11 +433,14 @@ def make_button(place):
 def make_body(places):
     body = f"<h1>{title}</h1>\n"
     chapter = 0
+    day = 3
     for place in places:
         if place["chapter"] != chapter:
             chapter = place["chapter"]
             hebrew_chapter = number_to_hebrew_letters(chapter)
-            body += 2*TAB + f"<h2>פרק {hebrew_chapter}</h2>\n"
+            # body += 2*TAB + f"<h2>פרק {hebrew_chapter}</h2>\n"
+            body += 2*TAB + f"<h2>{day}/08</h2>"
+            day += 1
         body += 3*TAB + make_button(place) + "\n"
     return body
 
@@ -323,7 +453,7 @@ def norway_to_israel(location):
 
 def make_debug():
     global title
-    title = "DEBUG!!!"
+    title = "מדריך טיולים גרסת פיתוח"
     for i in range(len(places)):
         places[i]['location'] = norway_to_israel(places[i]['location'])
         for j in range(len(places[i]['verify_locations'])):
@@ -331,19 +461,22 @@ def make_debug():
                 places[i]['verify_locations'][j])
             places[i]['verify_dists_km'][j] /= 3
             
-def main():
-    process_places()
-    if DEBUG:
-        make_debug()
+def make_html():
     template = get_template()
     body = make_body(places)
     final_html = template.replace("{{BODY}}", body)
     htmlfile = write_index_html(final_html)
-    
-    # open_html(htmlfile)
-    plot_places(places)
-    
+    return htmlfile
     
 if __name__ == "__main__":
-    main()
+    process_places()
+    if DEBUG:
+        make_debug()
+        
+    htmlfile = make_html()
+
+    # validate_word("נורווגיה.docx")
+    # open_html(htmlfile)
+    # plot_places(places)
+    
     print("done")
