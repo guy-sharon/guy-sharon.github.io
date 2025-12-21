@@ -485,7 +485,15 @@ def make_body(places):
             chapter = place["chapter"]
             hebrew_chapter = number_to_hebrew_letters(chapter)
             # body += 2*TAB + f"<h2>פרק {hebrew_chapter}</h2>\n"
-            body += 2*TAB + f"<h2>{day}/08</h2>"
+            # Responsive date header using CSS flexbox for centering
+            date_str = f"{day}/08"
+            body += 2*TAB + f"""
+            <div style="display: flex; justify-content: center; align-items: center; margin: 1em 0;">
+                <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
+                <h2 style="margin: 0; padding: 0 1em; width: fit-content;">{date_str}</h2>
+                <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
+            </div>
+            """
             day += 1
         body += 3*TAB + make_button(place) + "\n"
     return body
@@ -522,7 +530,7 @@ if __name__ == "__main__":
     htmlfile = make_html()
 
     # validate_word("נורווגיה.docx")
-    open_html(htmlfile)
+    # open_html(htmlfile)
     # plot_places(places)
     
     print("done")
