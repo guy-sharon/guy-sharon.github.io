@@ -1,40 +1,32 @@
-const cacheName = "offline-cache-v1";
-const cacheUrls = ["index.html"];
-
-// Installing the Service Worker
-self.addEventListener("install", async (event) => {
-  try {
-    const cache = await caches.open(cacheName);
-    await cache.addAll(cacheUrls);
-  } catch (error) {
-    console.error("Service Worker installation failed:", error);
-  }
-});
-
-// Fetching resources
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(cacheName);
 
       try {
-        const cachedResponse = await cache.match(event.request);
-        if (cachedResponse) {
-          console.log("cachedResponse: ", event.request.url);
-          return cachedResponse;
-        }
-
+        // Try to fetch from network first
         const fetchResponse = await fetch(event.request);
-        if (fetchResponse) {
-          console.log("fetchResponse: ", event.request.url);
+        if (fetchResponse && fetchResponse.ok) {
+          // Optionally cache the response
           await cache.put(event.request, fetchResponse.clone());
           return fetchResponse;
         }
       } catch (error) {
-        console.log("Fetch failed: ", error);
-        const cachedResponse = await cache.match("index.html");
+        console.log("Network fetch failed: ", error);
+      }
+
+      // Fallback to cache
+      const cachedResponse = await cache.match(event.request);
+      if (cachedResponse) {
         return cachedResponse;
       }
+
+      // Fallback to index.html for navigation requests
+      if (event.request.mode === "navigate") {
+        return await cache.match("index.html");
+      }
+
+      return Response.error();
     })()
   );
 });
