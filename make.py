@@ -5,7 +5,7 @@ import numpy as np
 from docx import Document
 import re
 
-DEBUG = False
+DEBUG = True
 
 title = "מדריך טיולים"
 places = [
@@ -465,7 +465,12 @@ def process_places():
 
 def get_template():
     with open("template", "r", encoding="utf-8") as f:
-        return f.read()
+        data = f.read()
+    if DEBUG:
+        data = data.replace("if (distance <= 1000) { // within 1km", 
+                            "if (distance <= 20e3) { // within 20km")
+        
+    return data
     
 def write_index_html(txt):
     file = "index.html"
@@ -529,6 +534,8 @@ def make_debug():
             places[i]['verify_locations'][j] = norway_to_israel(
                 places[i]['verify_locations'][j])
             places[i]['verify_dists_km'][j] /= 3
+    places[0]['location'] = [31.77887959177701, 35.20774504578961]
+    places[1]['location'] = [31.971300393037957, 34.77591912416341]
             
 def make_html():
     template = get_template()
