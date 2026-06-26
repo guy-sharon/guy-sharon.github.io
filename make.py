@@ -1,11 +1,16 @@
+import time
 import os
 import folium
 import webbrowser
 import numpy as np
 from docx import Document
 import re
+import glob
 
-DEBUG = True
+DEBUG = False
+
+place0 = {"name": "Oslo Lufthavn", "hebrew_name": "נמל התעופה אוסלו",
+          "location": [60.19285678506807, 11.098836497239045]}
 
 title = "מדריך טיולים"
 places = [
@@ -24,7 +29,18 @@ places = [
     None,
     
     ############################## DAY 1 ##############################
-    {"name": "Heddal Stave Church", "hebrew_name": "כנסיית העץ העתיקה",
+    {"name": "Herstrom Rasteplass", "hebrew_name": "תחנת מנוחה הרסטרום",
+     "location": [59.75825102148356, 10.068491295946465], 
+     "verify_locations": [
+            [59.91028747001133, 10.759149875920937],
+            [59.84136536105944, 10.451532708227695],
+            [59.76953468860811, 10.20983348823977],
+            [59.76953468833935, 9.902216326736134],
+            [59.6698211140157, 9.649530779118379],
+            [59.59484073364515, 9.391352091948987]], 
+     "verify_dists_km": [10,10,10,10,10,11]},
+    
+    {"name": "Kafe Olea", "hebrew_name": "קפה אוליה בכנסיית העץ העתיקה",
      "location": [59.579631217030496, 9.173712088688937], 
      "verify_locations": [
             [59.91028747001133, 10.759149875920937],
@@ -35,8 +51,14 @@ places = [
             [59.59484073364515, 9.391352091948987]], 
      "verify_dists_km": [10,10,10,10,10,11]},
     
-    {"name": "Notodden", "hebrew_name": "נוטודן",
-     "location": [59.559214890632845, 9.261338597651902], 
+    {"name": "Sjorormen Kro", "hebrew_name": "מסעדת סיורמנן קרו",
+     "location": [59.48075676708875, 8.635438953156646], 
+     "verify_locations": [ 
+            [59.91028747001133, 10.759149875920937]],
+     "verify_dists_km": [10]},
+    
+    {"name": "Dalen Bruggekafé", "hebrew_name": "בית הקפה דאלן ברוגקהפה",
+     "location": [59.445073835718375, 8.024244166693663], 
      "verify_locations": [ 
             [59.91028747001133, 10.759149875920937]],
      "verify_dists_km": [10]},
@@ -72,7 +94,7 @@ places = [
      ],
      "verify_dists_km": [4]},
     
-    {"name": "Floy cafe & bakery", "hebrew_name": "בית הקפה והמאפייה פלוי",
+    {"name": "Fløy Café & Bakery", "hebrew_name": "בית הקפה והמאפייה פלוי" + "&#10;(יש מכולת ממול)",
      "location": [60.32490612151451, 6.65844841798013], 
      "verify_locations": [
             [59.76787559060073, 7.3895109972957815], # 1
@@ -98,7 +120,7 @@ places = [
      ],
      "verify_dists_km": [4]},
     
-    {"name": "Eidfjord", "hebrew_name": "איידפיורד",
+    {"name": "Vik Café & Restaurant", "hebrew_name": "מסעדת ויק באיידפיורד",
      "location": [60.46689812548009, 7.0702280865386085], 
      "verify_locations": [
             [59.77074552110632, 7.387719303695958],
@@ -108,6 +130,13 @@ places = [
             [60.177551313893375, 6.577477640995911],
             [60.33289670959683, 6.64064902486744],
             [60.47126610499866, 6.942773034687797],
+     ],
+     "verify_dists_km": [13]},
+    
+    {"name": "YX Eidfjord", "hebrew_name": "תחנת דלק באידפיורד",
+     "location": [60.46604481212193, 7.071072694319243], 
+     "verify_locations": [
+            [59.77074552110632, 7.387719303695958],
      ],
      "verify_dists_km": [13]},
     
@@ -126,7 +155,15 @@ places = [
      ],
      "verify_dists_km": [6]},
 
-    {"name": "Bergen", "hebrew_name": "ברגן",
+    {"name": "Thon Hotel Sandven", "hebrew_name": "מלון תון סנדוונן",
+     "location": [60.39118163725193, 5.3216444182500835], 
+     "verify_locations": [ [60.46444368600508, 7.070500607404774], ],
+     "verify_dists_km": [7]},
+
+    None,
+    ############################### DAY 3 ##############################
+    
+    {"name": "Home Hotel Havnekontoret", "hebrew_name": "מלון הום האבנקונטורט בברגן",
      "location": [60.39118163725193, 5.3216444182500835], 
      "verify_locations": [
             [60.46444368600508, 7.070500607404774], # 1
@@ -159,24 +196,12 @@ places = [
      ],
      "verify_dists_km": [7]},
     
-    None,
-    ############################### DAY 3 ##############################
-    {"name": "Akvariet i Bergen", "hebrew_name": "האקווריום הלאומי בברגן",
-     "location": [60.39991067238998, 5.305273694648417], 
-     "verify_locations": [
-            [60.39536382611946, 5.324827734455982], # 1
-     ],
-     "verify_dists_km": [3]},
+    {"name": "Baker Brun", "hebrew_name": "מאפיית בייקר בראון",
+     "location": [60.392346654063516, 5.325385177527572],
+     "waze": False},
     
-    {"name": "Radisson Blu Royal Hotel", "hebrew_name": "מלון רדיסון בלו רויאל",
-     "location": [60.39991067238998, 5.305273694648417], 
-     "verify_locations": [
-            [60.39536382611946, 5.324827734455982], # 1
-     ],
-     "verify_dists_km": [3]},
-    
-    {"name": "Mostraumen Fjord Cruise Meeting Point", "hebrew_name": "נקודת מפגש לשייט במפרץ מוסטראומן",
-     "location": [60.397803257417706, 5.32095634189529],
+    {"name": "Strandkaien 13", "hebrew_name": "נקודת מפגש לשייט במפרץ מוסטראומן",
+     "location": [60.39473469822, 5.323139034997865],
      "waze": False},
     
     None,
@@ -190,7 +215,7 @@ places = [
      "location": [60.394751321111414, 5.325181579382361],
      "waze": False},
     
-    {"name": "Fløibanen", "hebrew_name": "רכבל פלויבנן",
+    {"name": "Floibanen", "hebrew_name": "רכבל פלויבנן",
      "location": [60.39635497566565, 5.328403478094899],
      "waze": False},
     
@@ -201,6 +226,16 @@ places = [
     None,
     
     ############################### DAY 5 ##############################
+    # {"name": "WC middle of the road", "hebrew_name": "שירותים באמצע הדרך",
+    #  "location": [60.64537216627435, 6.058899102161327], 
+    #  "verify_locations": [ [60.46444368600508, 7.070500607404774], ],
+    #  "verify_dists_km": [7]},
+    
+    {"name": "VossaBakst AS", "hebrew_name": "מאפיית ווסאבאקט",
+     "location": [60.64537216627435, 6.058899102161327], 
+     "verify_locations": [ [60.46444368600508, 7.070500607404774], ],
+     "verify_dists_km": [7]},
+    
     {"name": "Viking Valley", "hebrew_name": "עמק הוויקינגים",
      "location": [60.87871641194426, 6.842783130309827], 
      "verify_locations": [
@@ -222,37 +257,46 @@ places = [
      ],
      "verify_dists_km": [7]},
 
-    {"name": "Flåm", "hebrew_name": "פלם",
-     "location": [60.861997702411145, 7.112358780295647], 
+    {"name": "Flåm parkering", "hebrew_name": "חניון בפלום",
+     "location": [60.86407928930206, 7.111914402379143], 
      "verify_locations": [
             [60.891633364294144, 7.038671207753574], # 1
             [60.88234900079604, 6.896964710116111], # 2
      ],
      "verify_dists_km": [7]},
     
+    {"name": "Flåm Ferdaminne AS", "hebrew_name": "מלון פלום פרדמין",
+     "location": [60.86334669919673, 7.1162314240336215], 
+     "verify_locations": [
+            [60.891633364294144, 7.038671207753574], # 1
+            [60.88234900079604, 6.896964710116111], # 2
+     ],
+     "waze": False,
+     "verify_dists_km": [7]},
+    
     None,
     
     ############################### DAY 6 ##############################
-    {"name": "Undredal", "hebrew_name": "אונדרדל",
-     "location": [60.95151192075261, 7.104576536199135], 
-     "verify_locations": [
-            [60.878391678358604, 7.105231529246835], # 1
-     ],
-     "verify_dists_km": [7]},
+    # {"name": "Undredal", "hebrew_name": "אונדרדל",
+    #  "location": [60.95151192075261, 7.104576536199135], 
+    #  "verify_locations": [
+    #         [60.878391678358604, 7.105231529246835], # 1
+    #  ],
+    #  "verify_dists_km": [7]},
     
-    {"name": "Flåm Railway", "hebrew_name": "רכבת פלם",
+    {"name": "Flåmsbana", "hebrew_name": "רכבת פלם",
      "location": [60.863025494522724, 7.114590114743707],
      "waze": False},
     
-    {"name": "Fjord Cruise Nærøyfjord", "hebrew_name": "שייט במפרץ נארוי",
+    {"name": "Fjord Cruise Aurlandsfjord", "hebrew_name": "שייט במפרץ נארוי",
      "location": [60.86287674667964, 7.114571259500795],
      "waze": False},
     
     None,
     
     ############################### DAY 7 ##############################
-    {"name": "Stegastein Sightseeing Bus Station C", "hebrew_name": "תחנת אוטובוס C תצפית סטגסטין",
-     "location": [60.863336897632855, 7.114682301430519],
+    {"name": "Stegastein Parking", "hebrew_name": "חניון סטגסטיין",
+     "location": [60.90817847117424, 7.213003197679032],
      "waze": False},
     
     {"name": "Borgund Stave Church", "hebrew_name": "כנסיית העץ בורגונד",
@@ -274,26 +318,27 @@ places = [
      ],
      "verify_dists_km": [2.5]},
     
-    {"name": "Hønefoss", "hebrew_name": "הונפוס",
-     "location": [60.16839036222407, 10.25563852229932], 
-     "verify_locations": [
-            [61.04870646784796, 7.8145721451872685], 
-            [61.09321481987947, 8.213787636541655], # 1
-            [61.07828838258828, 8.628349570917184], # 2
-            [60.95862320943594, 8.407837903696157], # 3
-            [61.007826014149096, 8.919424971648938], # 4
-            [60.8857489981, 8.743015637872118], # 5
-            [60.89647624937489, 9.184038972314168], # 6
-            [60.76320314932188, 8.976758005126406], # 7
-            [60.79549758113771, 9.44424273963498], # 8
-            [60.63153685078923, 9.206090139036272], # 9
-            [60.60557178290706, 9.70003627361137], # 10
-            [60.45586661850836, 9.43983250629056], # 11
-            [60.44281604369537, 9.916137707487977], # 12
-            [60.305468131848905, 9.744138607055577], # 13
-            [60.26393202382515, 10.039624241131753], # 14
-     ],
-     "verify_dists_km": [16]},
+    {"name": "Borgund Servicesenter AS", "hebrew_name": "תחנת דלק בורגונד",
+     "location": [61.08029808349784, 7.848186229821723]},
+    
+    {"name": "Borgund Vedovnsbakeri", "hebrew_name": "מאפיית בורגונד",
+     "location": [61.08248842266929, 7.854405871833045],
+     "waze": False},
+    
+    {"name": "China Garden Restaurant Hemsedalsvegen", "hebrew_name": "מסעדת צ'יינה גארדן",
+     "location": [60.84962059362721, 8.616923162287812]},
+    
+    {"name": "Borts Fusion Restaurant", "hebrew_name": "מסעדת בורט פיוזן",
+     "location": [60.70080181928564, 8.94925099428799]},
+    
+    {"name": "Ming Beijing House", "hebrew_name": "מסעדת מינג בייג'ינג האוס",
+     "location": [60.700971327282296, 8.951952419923199]},
+    
+    {"name": "Hallingporten Kro og Asiamat AS", "hebrew_name": "מסעדת האלינגפורטן קרו ואסיאמאט",
+     "location": [60.38090060466161, 9.60986817096384]},
+    
+    {"name": "Sundvolden Hotel", "hebrew_name": "מלון סונדוולדן",
+     "location": [60.06328083013986, 10.310203485093925]},
 ]
 
 TAB = "  "
@@ -307,11 +352,21 @@ def pop_first_location_indicator(content):
                int(match.group(1))
     raise Exception("No location indicator found")
 
-def validate_word(docx_filename):
+def validate_word(docx_filename=None):
+    if docx_filename is None:
+        docx_filename = glob.glob(os.path.join("C:\\Users\\guysh\\Downloads", "*.docx"))
+        docx_filename.sort(key=os.path.getmtime, reverse=True)
+        docx_filename = docx_filename[0]
+        
     content = docx_to_txt_docx_method(docx_filename).lower()
+    last_id = None
     for place in places:
         if place is None:
             continue
+        curr_id = place['id']
+        if last_id is not None:
+            assert curr_id == last_id + 1, f"ID mismatch for '{place['name']}': expected {last_id + 1}, found {curr_id}"
+        last_id = curr_id if 'id' in place else last_id
         name = place['name'].lower()
         assert name in content, f"Place name '{name}' (id {place['id']}) not found in {docx_filename}"
         ind = content.index(name)
@@ -337,7 +392,7 @@ def docx_to_txt_docx_method(docx_filename):
 def rhex(a,b):
     return "{:02x}".format(np.random.randint(a, b))
 
-def make_place_map(place, m=None):
+def make_place_map(place, m=None, id=None):
     locs = [place['location'][1]] + [loc[1] for loc in place['verify_locations']]
     lats = [place['location'][0]] + [loc[0] for loc in place['verify_locations']]
     center_lat = float(np.mean(lats))
@@ -360,21 +415,32 @@ def make_place_map(place, m=None):
         opacity = 0.5
         color = "blue"
     
-    folium.Circle(
-        location=place['location'], radius=self_radius,
-        color=color, fill=True, fill_opacity=opacity,
-        popup=place['name']
-    ).add_to(m)
-
-    # verification locations
-    # random green color
-    green = f"#{rhex(0,100)}{rhex(150,200)}{rhex(0,100)}"
-    for i, loc in enumerate(place['verify_locations']):
-        folium.Circle(
-            location=loc, radius=place['verify_dists_km'][i] * 1000,
-            color=green, fill=True, fill_opacity=0.2,
-            popup=f"Verification Location {i+1}"
+    if id is not None: # print only text id on map
+        folium.Marker(
+            location=place['location'],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size: 16pt; color: black; text-align: center;">{id}</div>'
+            ),
+            popup=place['name']
         ).add_to(m)
+    else:
+        folium.Circle(
+            location=place['location'], radius=self_radius,
+            color=color, fill=True, fill_opacity=opacity,
+            popup=place['name']
+        ).add_to(m)
+
+        # verification locations
+        # random green color
+        green = f"#{rhex(0,100)}{rhex(150,200)}{rhex(0,100)}"
+        
+        for i, loc in enumerate(place['verify_locations']):
+            folium.Circle(
+                location=loc, radius=place['verify_dists_km'][i] * 1000,
+                color=green, fill=True, fill_opacity=0.2,
+                popup=f"Verification Location {i+1}"
+            ).add_to(m)
+            
     return m
 
 def make_place_plot_html(place):
@@ -389,17 +455,31 @@ def make_place_plot_html(place):
     return os.path.abspath(plotfile)
 
 def open_html(file):
-    webbrowser.open(f"file://{os.path.abspath(file)}")
+    # chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+    os.system(f'start chrome "{os.path.abspath(file)}"')
+    # webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chrome_path))
+    # webbrowser.open(f"file://{os.path.abspath(file)}")
     
-def plot_places(places):
-    for place in places[:]:
-        plotfile = make_place_plot_html(place)
-        open_html(plotfile)
+def plot_places(places, overview_only=False):
+    if not overview_only:
+        for place in places[:]:
+            plotfile = make_place_plot_html(place)
+            open_html(plotfile)
 
     # overview
-    m = make_place_map(places[0])
+    m = make_place_map(places[0], id=places[0]['id'])
     for place in places[1:]:
-        m = make_place_map(place, m)
+        m = make_place_map(place, m, id=place['id'])
+
+    # connect all overview places with a route line
+    route_locations = [place['location'] for place in places]
+    folium.PolyLine(
+        locations=route_locations,
+        color='red',
+        weight=3,
+        opacity=0.7
+    ).add_to(m)
+
     overview_plotfile = os.path.join(plots_dir, "overview_map.html")
     m.save(overview_plotfile)
     open_html(overview_plotfile)
@@ -490,7 +570,7 @@ def make_check_location(place):
 
 def make_button(place):
     s = f"""<button onclick="{make_check_location(place)}">{place["id"]}
-        <div style="font-size: 0.4em; margin-top: 0.3em;">{place["hebrew_name"]}</div>
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em;">{place["hebrew_name"]}</div>
         </button>
     """
     # s = f'<button onclick="{make_check_location(place)}">{place["id"]}</button>'
@@ -536,7 +616,24 @@ def make_debug():
             places[i]['verify_dists_km'][j] /= 3
     places[0]['location'] = [31.77887959177701, 35.20774504578961]
     places[1]['location'] = [31.971300393037957, 34.77591912416341]
-            
+
+def plot_route(places):
+    # plots route from each point to the next, on google maps, by car
+    
+    base_url = "https://www.google.com/maps/dir/"
+    urls = []
+    _places = [place0] + places
+    for i in range(len(_places)-1):
+        start = _places[i]['location']
+        end = _places[i+1]['location']
+        url = f"https://www.google.com/maps/dir/{start[0]},{start[1]}/{end[0]},{end[1]}/" \
+               "@60.368077,9.5150572,8z/data=!4m2!4m1!3e0"
+        urls.append(url)
+
+    for url in urls[::-1]:
+        webbrowser.open(url)
+        time.sleep(0.1)
+              
 def make_html():
     template = get_template()
     body = make_body(places)
@@ -551,8 +648,9 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    # validate_word("נורווגיה.docx")
+    # validate_word()
     # open_html(htmlfile)
-    # plot_places(places)
+    plot_places(places, overview_only=True)
+    # plot_route(places)
     
     print("done")

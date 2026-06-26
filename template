@@ -94,7 +94,7 @@
                 var msg = "האם אתם בטוחים שברצונכם להגיע ל"
                 msg += `${placeName}`
                 msg += "?"
-                const proceed = confirm(msg);
+                const proceed = true; // confirm(msg); // disable location verification for now
                 if (proceed) {
                     open_navigation(destLat, destLng, waze);
                 }
