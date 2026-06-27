@@ -1,11 +1,17 @@
 import time
 import os
+import zipfile
+import xml.etree.ElementTree as ET
 import folium
 import webbrowser
 import numpy as np
-from docx import Document
 import re
 import glob
+
+try:
+    from docx import Document as DocxDocument # type: ignore
+except Exception:
+    DocxDocument = None
 
 DEBUG = False
 
@@ -156,7 +162,7 @@ places = [
      "verify_dists_km": [6]},
 
     {"name": "Thon Hotel Sandven", "hebrew_name": "מלון תון סנדוונן",
-     "location": [60.39118163725193, 5.3216444182500835], 
+     "location": [60.37031484640493, 6.146837544949861], 
      "verify_locations": [ [60.46444368600508, 7.070500607404774], ],
      "verify_dists_km": [7]},
 
@@ -164,7 +170,7 @@ places = [
     ############################### DAY 3 ##############################
     
     {"name": "Home Hotel Havnekontoret", "hebrew_name": "מלון הום האבנקונטורט בברגן",
-     "location": [60.39118163725193, 5.3216444182500835], 
+     "location": [60.3980923124338, 5.321736535445991], 
      "verify_locations": [
             [60.46444368600508, 7.070500607404774], # 1
             [60.46997387537984, 6.913431714546659], # 2
@@ -296,8 +302,7 @@ places = [
     
     ############################### DAY 7 ##############################
     {"name": "Stegastein Parking", "hebrew_name": "חניון סטגסטיין",
-     "location": [60.90817847117424, 7.213003197679032],
-     "waze": False},
+     "location": [60.90817847117424, 7.213003197679032]},
     
     {"name": "Borgund Stave Church", "hebrew_name": "כנסיית העץ בורגונד",
      "location": [61.048663423927174, 7.814260366096567], 
@@ -379,14 +384,29 @@ def validate_word(docx_filename=None):
                 f"Location indicator mismatch for '{name}': expected {place['id']}, found {li}"
         
 def docx_to_txt_docx_method(docx_filename):
-    document = Document(docx_filename)
-    full_text = []
-    for para in document.paragraphs:
-        full_text.append(para.text)
+    if DocxDocument is not None:
+        document = DocxDocument(docx_filename)
+        full_text = []
+        for para in document.paragraphs:
+            full_text.append(para.text)
 
-    # Join paragraphs with a newline character
-    content = '\n'.join(full_text)
-    return content
+        # Join paragraphs with a newline character
+        return '\n'.join(full_text)
+
+    with zipfile.ZipFile(docx_filename) as docx_zip:
+        document_xml = docx_zip.read('word/document.xml')
+
+    root = ET.fromstring(document_xml)
+    namespace = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+    paragraphs = []
+    for paragraph in root.findall('.//w:p', namespace):
+        texts = []
+        for text_node in paragraph.iterfind('.//w:t', namespace):
+            texts.append(text_node.text or '')
+        if texts:
+            paragraphs.append(''.join(texts))
+
+    return '\n'.join(paragraphs)
 
 
 def rhex(a,b):
@@ -466,19 +486,25 @@ def plot_places(places, overview_only=False):
             plotfile = make_place_plot_html(place)
             open_html(plotfile)
 
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+
     # overview
     m = make_place_map(places[0], id=places[0]['id'])
     for place in places[1:]:
         m = make_place_map(place, m, id=place['id'])
 
-    # connect all overview places with a route line
-    route_locations = [place['location'] for place in places]
-    folium.PolyLine(
-        locations=route_locations,
-        color='red',
-        weight=3,
-        opacity=0.7
-    ).add_to(m)
+    # connect all overview places with route lines, using different colors for waze=False
+    for i in range(len(places) - 1):
+        current_place = places[i]
+        next_place = places[i + 1]
+        route_color = 'red' if next_place.get('waze', True) else 'blue'
+        folium.PolyLine(
+            locations=[current_place['location'], next_place['location']],
+            color=route_color,
+            weight=3,
+            opacity=0.7
+        ).add_to(m)
 
     overview_plotfile = os.path.join(plots_dir, "overview_map.html")
     m.save(overview_plotfile)
