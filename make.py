@@ -357,11 +357,18 @@ places = [
     {"name": "Aker Brygge Promenade", "hebrew_name": "טיילת נמל אקר בריגה",
      "location": [59.90896967189987, 10.725595230539124],
      "waze": False},
+    
+    {"name": "Mathallen Oslo", "hebrew_name": "שוק מאטהלן אוסלו",
+     "location": [59.92228015036125, 10.7516417405264981],
+     "taxi": True},
 ]
 
 TAB = "  "
 plots_dir = "plots"
 
+
+color_map = {'waze': '#0b72b9', 'google': "#27C82F", 'taxi': "#E5C740"}
+        
 def pop_first_location_indicator(content):
     match = re.search(r"\[(\d+)\]", content)
     if match:
@@ -507,16 +514,19 @@ def plot_places(places, overview_only=False):
     for place in places[1:]:
         m = make_place_map(place, m, id=place['id'])
 
-    # connect all overview places with route lines, using different colors for waze=False
+    # connect all overview places with route lines, using different colors for navigation mode
     for i in range(len(places) - 1):
         current_place = places[i]
         next_place = places[i + 1]
-        route_color = 'red' if next_place.get('waze', True) else 'blue'
+        next_mode = next_place.get('mode')
+        if next_mode is None:
+            next_mode = 'waze' if next_place.get('waze', True) else 'google'
+        route_color = color_map.get(next_mode, 'red')
         folium.PolyLine(
             locations=[current_place['location'], next_place['location']],
             color=route_color,
             weight=3,
-            opacity=0.7
+            opacity=0.9
         ).add_to(m)
 
     overview_plotfile = os.path.join(plots_dir, "overview_map.html")
@@ -569,8 +579,13 @@ def process_places():
         if places[i] is None:
             chapter += 1
             continue
-        if "waze" not in places[i]:
-            places[i]["waze"] = True
+        if "mode" not in places[i]:
+            if "taxi" in places[i]:
+                places[i]["mode"] = "taxi" if places[i]["taxi"] else "google"
+            elif "waze" in places[i]:
+                places[i]["mode"] = "waze" if places[i]["waze"] else "google"
+            else:
+                places[i]["mode"] = "waze"
         if 'verify_locations' not in places[i]:
             places[i]['verify_locations'] = []
             places[i]['verify_dists_km'] = []
@@ -598,18 +613,26 @@ def write_index_html(txt):
     return os.path.abspath(file)
 
 def make_check_location(place):
-    # destLat, destLng, placeName, verified_locations, verify_dists_km, waze
+    # destLat, destLng, placeName, verified_locations, verify_dists_km, mode
+    mode = place.get('mode')
+    if mode is None:
+        mode = 'waze' if place.get('waze', True) else 'google'
     params = place['location'] + [place['hebrew_name']] + \
-             [place['verify_locations'], place['verify_dists_km'], 
-              1 if place['waze'] else 0]
+             [place['verify_locations'], place['verify_dists_km'], mode]
     params = [f"'{p}'" if isinstance(p, str) else p for p in params]
     params = [str(p) for p in params]
     s = f"checkLocation({', '.join(params)})"
     return s
 
 def make_button(place):
-    s = f"""<button onclick="{make_check_location(place)}">{place["id"]}
-        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em;">{place["hebrew_name"]}</div>
+    # determine button colors by transport mode
+    mode = place.get('mode') or ('waze' if place.get('waze', True) else 'google')
+    bg = color_map.get(mode, '#0b72b9')
+    fg = '#ffffff' if mode in ('waze', 'taxi') else '#000000'
+
+    s = f"""<button onclick="{make_check_location(place)}" style="border: 5px solid {bg}; ">
+        {place["id"]}
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: {fg};">{place["hebrew_name"]}</div>
         </button>
     """
     # s = f'<button onclick="{make_check_location(place)}">{place["id"]}</button>'
@@ -641,7 +664,7 @@ def norway_to_israel(location):
     # Roughly translate Norway coordinates from Norway to Israel
     lat, lon = location
     new_lat = 31.8483 + (lat - 60.0) * 0.7
-    new_lon = 35.1037 + (lon - 10.0) * 0.1
+    new_lon = 35.1037 + (lon - 10.0) * 0.06
     return [new_lat, new_lon]
 
 def make_debug():
@@ -687,9 +710,9 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    validate_word()
+    # validate_word()
     # open_html(htmlfile)
-    plot_places(places, overview_only=True)
+    # plot_places(places, overview_only=True)
     # plot_route(places)
     
     print("done")
