@@ -13,7 +13,7 @@ try:
 except Exception:
     DocxDocument = None
 
-DEBUG = False
+DEBUG = True
 
 place0 = {"name": "Oslo Lufthavn", "hebrew_name": "נמל התעופה אוסלו",
           "location": [60.19285678506807, 11.098836497239045]}
@@ -294,6 +294,10 @@ places = [
      "location": [60.863025494522724, 7.114590114743707],
      "waze": False},
     
+    {"name": "Ægir BrewPub", "hebrew_name": "פאב אייגיר",
+     "location": [60.86376870878429, 7.117016243259797],
+     "waze": False},
+    
     {"name": "Fjord Cruise Aurlandsfjord", "hebrew_name": "שייט במפרץ נארוי",
      "location": [60.86287674667964, 7.114571259500795],
      "waze": False},
@@ -344,6 +348,15 @@ places = [
     
     {"name": "Sundvolden Hotel", "hebrew_name": "מלון סונדוולדן",
      "location": [60.06328083013986, 10.310203485093925]},
+    
+    
+    ################################# DAY 8 ##############################
+    {"name": "Aimo Park | Aker Brygge P-hus", "hebrew_name": "חניון איימו פארק",
+     "location": [59.91049033570815, 10.724241172961621]},
+    
+    {"name": "Aker Brygge Promenade", "hebrew_name": "טיילת נמל אקר בריגה",
+     "location": [59.90896967189987, 10.725595230539124],
+     "waze": False},
 ]
 
 TAB = "  "
@@ -674,7 +687,7 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    # validate_word()
+    validate_word()
     # open_html(htmlfile)
     plot_places(places, overview_only=True)
     # plot_route(places)
