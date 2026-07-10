@@ -25,6 +25,9 @@
     }
 
     .card {
+        display:flex;
+        flex-direction: column;
+        justify-content: space-around;
         width: 100%;
         height: 95%;
         max-width: 100%;
@@ -42,7 +45,7 @@
         font-size: 92px;
         font-weight: bold;
         line-height: 1.1;
-        margin-bottom: 25px;
+        margin-bottom: 255px;
         color: #111;
     }
 
@@ -50,7 +53,7 @@
         font-size: 68px;
         line-height: 1.4;
         color: #333;
-        margin-bottom: 30px;
+        margin-bottom: 300px;
         font-weight: bold;
     }
 
@@ -78,6 +81,7 @@
 
 <div class="card">
 
+    <div>
     <div class="header">
         🚕
     </div>
@@ -85,17 +89,20 @@
     <div class="destination">
         {{DESTINATION}}
     </div>
-
+    </div>
+    
     <div class="address">
         {{ADDRESS}}
     </div>
 
+    <div>
     <div class="pin">
         📍
     </div>
 
     <div class="instruction">
         Please take us here
+    </div>
     </div>
 
 </div>
