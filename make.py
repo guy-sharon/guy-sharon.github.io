@@ -857,7 +857,7 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    validate_word()
+    # validate_word()
     # open_html(htmlfile)
     plot_places(places, overview_only=True)
     # plot_route(places)
