@@ -7,13 +7,15 @@ import webbrowser
 import numpy as np
 import re
 import glob
+import urllib.request
+import urllib.parse
 
 try:
     from docx import Document as DocxDocument # type: ignore
 except Exception:
     DocxDocument = None
 
-DEBUG = True
+DEBUG = False
 
 place0 = {"name": "Oslo Lufthavn", "hebrew_name": "נמל התעופה אוסלו",
           "location": [60.19285678506807, 11.098836497239045]}
@@ -359,15 +361,34 @@ places = [
      "waze": False},
     
     {"name": "Mathallen Oslo", "hebrew_name": "שוק מאטהלן אוסלו",
-     "location": [59.92228015036125, 10.7516417405264981],
-     "taxi": True},
+     "location": [59.92225948655396, 10.751672382538482],
+     "taxi": True, "address": "Vulkan 5, 0178 Oslo" },
+    
+    {"name": "Oslo Botanical Garden", "hebrew_name": "הגן הבוטני של אוסלו",
+     "location": [59.9173308419907, 10.77021244111759],
+     "taxi": True, "address": "Sars' gate 10, 0562 Oslo" },
+    
+    {"name": "Papegøye", "hebrew_name": "בית קפה פאפגוי",
+     "location": [59.91367852249773, 10.766090154461526],
+     "waze": False},
+    
+    {"name": "Aimo Park | Aker Brygge P hus", "hebrew_name": "חניון איימו פארק",
+     "location": [59.91043401431247, 10.724347240010202], 
+     "taxi": True, "address": "Sjøgata 4, 0250 Oslo"},
+    
+    {"name": "Tyrkisk kjøkken", "hebrew_name": "מסעדת טורקיש קיוקן",
+     "location": [59.93290209821618, 10.880994497313374]},
+    
+    {"name": "Quality Airport Hotel Gardermoen", "hebrew_name": "מלון קווליטי גארדרמואן",
+     "location": [60.164242753293536, 11.162264875483803]}
 ]
 
 TAB = "  "
 plots_dir = "plots"
+statics_dir = "statics"
 
 
-color_map = {'waze': '#0b72b9', 'google': "#27C82F", 'taxi': "#E5C740"}
+color_map = {'waze': '#0b72b9', 'google': "#27C82F", 'taxi': "#C08703"}
         
 def pop_first_location_indicator(content):
     match = re.search(r"\[(\d+)\]", content)
@@ -432,6 +453,105 @@ def docx_to_txt_docx_method(docx_filename):
 def rhex(a,b):
     return "{:02x}".format(np.random.randint(a, b))
 
+
+def safe_filename(name):
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", name)
+
+
+def ensure_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def generate_taxi_assets_all(places_list):
+    ensure_dir(statics_dir)
+    for place in places_list:
+        mode = place.get('mode') or ('waze' if place.get('waze', True) else 'google')
+        if mode != 'taxi':
+            continue
+        lat, lon = place['location'][0], place['location'][1]
+        name = place['name']
+        safe = safe_filename(name)
+        img_filename = f"{safe}_taxi.png"
+        img_path = os.path.join(statics_dir, img_filename)
+        html_filename = f"{safe}_taxi.html"
+        html_path = os.path.join(statics_dir, html_filename)
+
+        params = {
+            'center': f"{lat},{lon}",
+            'zoom': '17',
+            'size': '900x600',
+            'markers': f"{lat},{lon},red-pushpin"
+        }
+        query = '&'.join([f"{k}={urllib.parse.quote_plus(v)}" for k, v in params.items()])
+        url = f"https://staticmap.openstreetmap.de/staticmap.php?{query}"
+
+        # Download PNG if not already present
+        if not os.path.exists(img_path):
+            try:
+                with urllib.request.urlopen(url, timeout=10) as resp:
+                    data = resp.read()
+                    with open(img_path, 'wb') as fh:
+                        fh.write(data)
+            except Exception:
+                img_path = url
+
+        rel_img = img_path if isinstance(img_path, str) and img_path.startswith('http') else img_path.replace('\\', '/')
+        html_content = f"""<!doctype html>
+<html>
+<head>
+  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"> 
+  <title>{name} - Taxi Map</title>
+  <style>body{{font-family:Arial,Helvetica,sans-serif;background:#f5f7fa;margin:0;padding:1rem;text-align:center}}img{{max-width:100%;height:auto;border-radius:8px;border:1px solid #ccc}}</style>
+</head>
+<body>
+  <h1 style=\"margin:0.5rem 0\">{name}</h1>
+  <p style=\"color:#444;margin-top:0\">Show this screen to the taxi driver</p>
+  <img src=\"{rel_img}\" alt=\"{name}\"> 
+  <div style=\"margin-top:0.5rem;color:#333;font-size:0.95rem\">Coordinates: {lat:.6f}, {lon:.6f}</div>
+</body>
+</html>"""
+
+        try:
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            place['taxi_asset'] = html_path.replace('\\', '/')
+        except Exception:
+            place['taxi_asset'] = img_path if isinstance(img_path, str) else ''
+
+def make_place_img(place):
+    m = folium.Map(
+        location=place['location'],
+        zoom_start=17,
+        tiles="OpenStreetMap"  # Default map with names
+    )
+     
+    folium.Marker(
+            location=place['location'],
+            icon=folium.Icon(
+                color="red",              # Marker background color
+                icon_color="white",        # Icon symbol color
+                icon=place["name"]          # Glyphicon name
+            ),
+            popup=place['name']
+        ).add_to(m)
+    
+    folium.Marker(
+            location=place['location'],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size: 54pt; color: black; text-align: center;">{place["name"]}</div>'
+            ),
+            popup=place['name']
+        ).add_to(m)
+    
+    # folium.CircleMarker(
+    #         location=place['location'], radius=50,
+    #         color='black', fill=False, fill_opacity=0.5,
+    #         popup=place['name']
+    #     ).add_to(m)
+    
+    return m
+
 def make_place_map(place, m=None, id=None):
     locs = [place['location'][1]] + [loc[1] for loc in place['verify_locations']]
     lats = [place['location'][0]] + [loc[0] for loc in place['verify_locations']]
@@ -487,7 +607,7 @@ def make_place_plot_html(place):
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
 
-    m = make_place_map(place)
+    m = make_place_img(place)
         
     # Save output to HTML
     plotfile = os.path.join(plots_dir, place['name'].replace(" ", "_") + "_map.html")
@@ -525,8 +645,8 @@ def plot_places(places, overview_only=False):
         folium.PolyLine(
             locations=[current_place['location'], next_place['location']],
             color=route_color,
-            weight=3,
-            opacity=0.9
+            weight=5,
+            opacity=1
         ).add_to(m)
 
     overview_plotfile = os.path.join(plots_dir, "overview_map.html")
@@ -596,6 +716,7 @@ def process_places():
                 places[i]['verify_dists_km'] * len(places[i]['verify_locations'])
         id += 1
     places = [p for p in places if p is not None]
+    # Pre-generate taxi assets (images + HTML wrappers)
 
 def get_template():
     with open("template", "r", encoding="utf-8") as f:
@@ -617,8 +738,9 @@ def make_check_location(place):
     mode = place.get('mode')
     if mode is None:
         mode = 'waze' if place.get('waze', True) else 'google'
+    taxi_asset = f"statics/{place['name'].replace(' ', '_').replace('|', '_')}.html"
     params = place['location'] + [place['hebrew_name']] + \
-             [place['verify_locations'], place['verify_dists_km'], mode]
+             [place['verify_locations'], place['verify_dists_km'], mode, taxi_asset]
     params = [f"'{p}'" if isinstance(p, str) else p for p in params]
     params = [str(p) for p in params]
     s = f"checkLocation({', '.join(params)})"
@@ -695,9 +817,34 @@ def plot_route(places):
     for url in urls[::-1]:
         webbrowser.open(url)
         time.sleep(0.1)
-              
+
+def make_places_cards_for_taxi(places):
+    statics_dir = "statics"
+    if not os.path.exists(statics_dir):
+        os.makedirs(statics_dir)
+    
+    for place in places:
+        if place.get('mode') != 'taxi':
+            continue
+            
+        with open("taxi_card_template.html", "r", encoding="utf-8") as f:
+            taxi_card_template = f.read()
+        
+        assert 'address' in place, \
+            f"Place '{place['name']}' is missing 'address' for taxi card generation."
+        addr = place['address']
+        dest = place['name']
+        final_html = taxi_card_template.replace("{{ADDRESS}}", addr)
+        final_html = final_html.replace("{{DESTINATION}}", dest)
+        
+        dest = dest.replace(" ", "_").replace("|","_")
+        with open(os.path.join(statics_dir, f"{dest}.html"), "w", encoding="utf-8") as f:
+            f.write(final_html)
+            
 def make_html():
+    global places
     template = get_template()
+    make_places_cards_for_taxi(places)
     body = make_body(places)
     final_html = template.replace("{{BODY}}", body)
     htmlfile = write_index_html(final_html)
@@ -710,9 +857,9 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    # validate_word()
+    validate_word()
     # open_html(htmlfile)
-    # plot_places(places, overview_only=True)
+    plot_places(places, overview_only=True)
     # plot_route(places)
     
     print("done")

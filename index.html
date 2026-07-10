@@ -38,32 +38,10 @@
 
   <script>
         // Function to check user's location
-        function open_navigation(destLat, destLng, mode, placeName) {
+        function open_navigation(destLat, destLng, mode, placeName, taxiPath) {
             if (mode === 'taxi') {
-                const imageUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${destLat},${destLng}&zoom=17&size=900x600&markers=${destLat},${destLng},red-pushpin`;
-                const html = `
-                    <html>
-                    <head>
-                        <title>${placeName} - Taxi Map</title>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <style>body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fa; color: #111; text-align: center; }</style>
-                    </head>
-                    <body>
-                        <div style="padding: 1rem;">
-                            <h1 style="margin-bottom: 0.5rem;">${placeName}</h1>
-                            <p style="margin-top: 0; color: #444;">Show this screen to the taxi driver.</p>
-                        </div>
-                        <img src="${imageUrl}" alt="${placeName}" style="max-width:100%; height:auto; border-radius: 12px; border: 1px solid #ccc;">
-                        <div style="padding: 1rem; color: #333; font-size: 0.95rem;">
-                            <div><strong>Address:</strong> ${placeName}</div>
-                            <div><strong>Coordinates:</strong> ${destLat.toFixed(6)}, ${destLng.toFixed(6)}</div>
-                        </div>
-                    </body>
-                    </html>`;
-                window.open('data:text/html;charset=utf-8,' + encodeURIComponent(html), '_blank');
-                return;
-            }
-            if (mode === 'waze') {
+                window.location.href = taxiPath;
+            } else if (mode === 'waze') {
                 window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
             } else {
                 window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=walking`;
@@ -83,22 +61,21 @@
             return distance;
         }
 
-        function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, mode) {
-            // Skip geolocation checks and immediately open the requested navigation mode.
-            // This makes the button always direct to the chosen navigation/taxi view.
-            open_navigation(destLat, destLng, mode, placeName);
+        function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, mode, taxiPath) {
+            // Skip geolocation checks and immediately open the requested navigation/taxi view.
+            open_navigation(destLat, destLng, mode, placeName, taxiPath);
         }
     </script>
 </head>
 <body>
-  <h1>מדריך טיולים גרסת פיתוח</h1>
+  <h1>מדריך טיולים</h1>
     
             <div style="display: flex; justify-content: center; align-items: center; margin: 1em 0;">
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">3/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(31.77887959177701, 35.20774504578961, 'מלון קווליטי אולאבסגארד', [[31.97101999898877, 35.169374974754426], [31.94883536145229, 35.17319649318617], [31.90924814673672, 35.17231460431731], [31.875873803966556, 35.17055082657958], [31.848453694331322, 35.16609238840922]], [1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(59.97937318811253, 11.000563373446656, 'מלון קווליטי אולאבסגארד', [[60.175314284269675, 11.094582912573745], [60.143621944931844, 11.158274886436065], [60.08706878105246, 11.143576738621684], [60.039391148523656, 11.11418044299292], [60.00021956333046, 11.039873140153547]], [4, 4, 4, 4, 4], 'waze', 'statics/Quality_Hotel_Olavsgaard.html')" style="border: 5px solid #0b72b9; ">
         1
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון קווליטי אולאבסגארד</div>
         </button>
@@ -109,27 +86,27 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">4/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(31.971300393037957, 34.77591912416341, 'תחנת מנוחה הרסטרום', [[31.78550122900793, 35.14924899255526], [31.737255752741603, 35.13079196249367], [31.686974282025677, 35.11629000929439], [31.686974281837543, 35.09783297960417], [31.617174779810988, 35.082671846747104], [31.5646885135516, 35.067181125516946]], [3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.6666666666666665], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(59.75825102148356, 10.068491295946465, 'תחנת מנוחה הרסטרום', [[59.91028747001133, 10.759149875920937], [59.84136536105944, 10.451532708227695], [59.76953468860811, 10.20983348823977], [59.76953468833935, 9.902216326736134], [59.6698211140157, 9.649530779118379], [59.59484073364515, 9.391352091948987]], [10, 10, 10, 10, 10, 11], 'waze', 'statics/Herstrom_Rasteplass.html')" style="border: 5px solid #0b72b9; ">
         2
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">תחנת מנוחה הרסטרום</div>
         </button>
     
-      <button onclick="checkLocation(31.554041851921344, 35.05412272532134, 'קפה אוליה בכנסיית העץ העתיקה', [[31.78550122900793, 35.14924899255526], [31.737255752741603, 35.13079196249367], [31.686974282025677, 35.11629000929439], [31.686974281837543, 35.09783297960417], [31.617174779810988, 35.082671846747104], [31.5646885135516, 35.067181125516946]], [3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.6666666666666665], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(59.579631217030496, 9.173712088688937, 'קפה אוליה בכנסיית העץ העתיקה', [[59.91028747001133, 10.759149875920937], [59.84136536105944, 10.451532708227695], [59.76953468860811, 10.20983348823977], [59.76953468833935, 9.902216326736134], [59.6698211140157, 9.649530779118379], [59.59484073364515, 9.391352091948987]], [10, 10, 10, 10, 10, 11], 'waze', 'statics/Kafe_Olea.html')" style="border: 5px solid #0b72b9; ">
         3
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">קפה אוליה בכנסיית העץ העתיקה</div>
         </button>
     
-      <button onclick="checkLocation(31.484829736962123, 35.0218263371894, 'מסעדת סיורמנן קרו', [[31.78550122900793, 35.14924899255526]], [3.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(59.48075676708875, 8.635438953156646, 'מסעדת סיורמנן קרו', [[59.91028747001133, 10.759149875920937]], [10], 'waze', 'statics/Sjorormen_Kro.html')" style="border: 5px solid #0b72b9; ">
         4
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת סיורמנן קרו</div>
         </button>
     
-      <button onclick="checkLocation(31.45985168500286, 34.985154650001625, 'בית הקפה דאלן ברוגקהפה', [[31.78550122900793, 35.14924899255526]], [3.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(59.445073835718375, 8.024244166693663, 'בית הקפה דאלן ברוגקהפה', [[59.91028747001133, 10.759149875920937]], [10], 'waze', 'statics/Dalen_Bruggekafé.html')" style="border: 5px solid #0b72b9; ">
         5
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">בית הקפה דאלן ברוגקהפה</div>
         </button>
     
-      <button onclick="checkLocation(31.686928448949352, 34.947042695307445, 'מלון ווגסלידטון', [[31.571400281425998, 35.04387061414752], [31.569666927631427, 35.026546375461955], [31.51326337493168, 35.012452079582175], [31.552326364921036, 34.997330074627826], [31.601713307161774, 34.984703934568856], [31.64408590543616, 34.97457365940526], [31.679481743581267, 34.959598470032994]], [3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335, 3.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(59.76946921278479, 7.389044921790655, 'מלון ווגסלידטון', [[59.604428973465716, 9.002843569125318], [59.601952753759186, 8.714106257699223], [59.5213762499024, 8.479201326369518], [59.57718052131577, 8.227167910463688], [59.64773329594539, 8.016732242814161], [59.70826557919452, 7.847894323420936], [59.758831062258956, 7.5983078338831245]], [10, 10, 10, 10, 10, 10, 10], 'waze', 'statics/Vågslidtun_Hotell_AS.html')" style="border: 5px solid #0b72b9; ">
         6
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון ווגסלידטון</div>
         </button>
@@ -140,32 +117,32 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">5/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(31.812069766353012, 34.898719385682114, 'מפלי לטפוסן', [[31.68581291342051, 34.94707065983775], [31.699638851982378, 34.94157715150352], [31.72266390633724, 34.93588744644307], [31.74145085522261, 34.928955162116544], [31.74145085522261, 34.92176128215505], [31.741067599435095, 34.91561378473342], [31.72228034155097, 34.91038187203415], [31.742217347884576, 34.90619634187474], [31.771325388290773, 34.90266480080273], [31.795426840237216, 34.89913325973073]], [1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(59.94824252336145, 6.58365642803515, 'מפלי לטפוסן', [[59.76787559060073, 7.3895109972957815], [59.7876269314034, 7.297952525058634], [59.82051986619606, 7.203124107384445], [59.84735836460373, 7.087586035275664], [59.84735836460373, 6.9676880359174955], [59.84681085633585, 6.865229745556879], [59.81997191650139, 6.77803120056912], [59.84845335412083, 6.708272364578912], [59.89003626898682, 6.6494133467121745], [59.924466914624595, 6.590554328845437]], [4, 4, 4, 4, 4, 4, 4, 4, 4, 4], 'waze', 'statics/Låtefossen_Waterfall.html')" style="border: 5px solid #0b72b9; ">
         7
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מפלי לטפוסן</div>
         </button>
     
-      <button onclick="checkLocation(32.07573428506016, 34.90320690507881, 'בית הקפה והמאפייה פלוי&#10;(יש מכולת ממול)', [[31.68581291342051, 34.94707065983775], [31.699638851982378, 34.94157715150352], [31.72266390633724, 34.93588744644307], [31.74145085522261, 34.928955162116544], [31.74145085522261, 34.92176128215505], [31.741067599435095, 34.91561378473342], [31.72228034155097, 34.91038187203415], [31.742217347884576, 34.90619634187474], [31.771325388290773, 34.90266480080273], [31.795426840237216, 34.89913325973073], [31.81529225196482, 34.89864585459417], [31.846607462175538, 34.89744351065856], [31.879496799366713, 34.89762848664866], [31.912339404689472, 34.89679609469323], [31.944598060728683, 34.897720974643704], [31.97037249212188, 34.89910829456941], [32.00040618833273, 34.90003317451988], [32.02397655809651, 34.90049561449512], [32.046452960980986, 34.900680590485216], [32.06356304103624, 34.90234537439606]], [1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333, 1.3333333333333333], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.32490612151451, 6.65844841798013, 'בית הקפה והמאפייה פלוי&#10;(יש מכולת ממול)', [[59.76787559060073, 7.3895109972957815], [59.7876269314034, 7.297952525058634], [59.82051986619606, 7.203124107384445], [59.84735836460373, 7.087586035275664], [59.84735836460373, 6.9676880359174955], [59.84681085633585, 6.865229745556879], [59.81997191650139, 6.77803120056912], [59.84845335412083, 6.708272364578912], [59.89003626898682, 6.6494133467121745], [59.924466914624595, 6.590554328845437], [59.95284607423546, 6.582430909902832], [59.9975820888222, 6.5623918443092615], [60.04456685623816, 6.565474777477503], [60.091484863842105, 6.551601578220416], [60.13756865818384, 6.567016244061624], [60.17438927445983, 6.590138242823436], [60.217294554761054, 6.605552908664643], [60.25096651156644, 6.613260241585247], [60.28307565854426, 6.616343174753489], [60.307518630051774, 6.644089573267662]], [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4], 'waze', 'statics/Fløy_Café_&_Bakery.html')" style="border: 5px solid #0b72b9; ">
         8
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">בית הקפה והמאפייה פלוי&#10;(יש מכולת ממול)</div>
         </button>
     
-      <button onclick="checkLocation(32.175128687836065, 34.92791368519232, 'מסעדת ויק באיידפיורד', [[31.687821864774424, 34.94696315822176], [31.740998956058636, 34.92619899900138], [31.766095053753105, 34.90312771097874], [31.849873936742647, 34.89752468388752], [31.97258591972536, 34.89834865845976], [32.08132769671778, 34.90213894149205], [32.178186273499065, 34.92026638208127]], [4.333333333333333, 4.333333333333333, 4.333333333333333, 4.333333333333333, 4.333333333333333, 4.333333333333333, 4.333333333333333], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.46689812548009, 7.0702280865386085, 'מסעדת ויק באיידפיורד', [[59.77074552110632, 7.387719303695958], [59.84671279436948, 7.041649983356277], [59.88256436250444, 6.657128516312186], [60.002248481060924, 6.5637447314586215], [60.177551313893375, 6.577477640995911], [60.33289670959683, 6.64064902486744], [60.47126610499866, 6.942773034687797]], [13, 13, 13, 13, 13, 13, 13], 'waze', 'statics/Vik_Café_&_Restaurant.html')" style="border: 5px solid #0b72b9; ">
         9
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת ויק באיידפיורד</div>
         </button>
     
-      <button onclick="checkLocation(32.17453136848535, 34.92796436165916, 'תחנת דלק באידפיורד', [[31.687821864774424, 34.94696315822176]], [4.333333333333333], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.46604481212193, 7.071072694319243, 'תחנת דלק באידפיורד', [[59.77074552110632, 7.387719303695958]], [13], 'waze', 'statics/YX_Eidfjord.html')" style="border: 5px solid #0b72b9; ">
         10
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">תחנת דלק באידפיורד</div>
         </button>
     
-      <button onclick="checkLocation(32.10747182182504, 34.87018144137912, 'מפלי שטיינסדלספוסן', [[32.175274439109636, 34.92800048223147], [32.18301540973146, 34.92099969729265], [32.19307472855441, 34.91292186851709], [32.2100880405285, 34.906055714057864], [32.17682284426406, 34.90013197295579], [32.1574601940104, 34.89165025274145], [32.13653000199703, 34.88559188115978], [32.11713302723893, 34.87859109622096], [32.10936961315628, 34.87199420272092]], [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.37024545975006, 6.108024022985264, 'מפלי שטיינסדלספוסן', [[60.4671063415852, 7.071674703857783], [60.478164871044946, 6.9549949548774705], [60.4925353265063, 6.820364475284801], [60.51684005789785, 6.705928567631032], [60.46931834894866, 6.607199549263075], [60.441657420014856, 6.465837545690771], [60.41175714571005, 6.36486468599627], [60.3840471817699, 6.248184937015956], [60.37295659022326, 6.138236712015276]], [6, 6, 6, 6, 6, 6, 6, 6, 6], 'waze', 'statics/Steinsdalsfossen.html')" style="border: 5px solid #0b72b9; ">
         11
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מפלי שטיינסדלספוסן</div>
         </button>
     
-      <button onclick="checkLocation(32.10752039248345, 34.872510252697, 'מלון תון סנדוונן', [[32.17341058020356, 34.92793003644429]], [2.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.37031484640493, 6.146837544949861, 'מלון תון סנדוונן', [[60.46444368600508, 7.070500607404774]], [7], 'waze', 'statics/Thon_Hotel_Sandven.html')" style="border: 5px solid #0b72b9; ">
         12
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון תון סנדוונן</div>
         </button>
@@ -176,17 +153,17 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">6/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(32.12696461870366, 34.82300419212676, 'מלון הום האבנקונטורט בברגן', [[32.17341058020356, 34.92793003644429], [32.17728171276589, 34.9185059028728], [32.199721278884134, 34.91190900937276], [32.224456450805214, 34.90746620354621], [32.251479659412624, 34.901946353882906], [32.289257988875505, 34.89373389462775], [32.28771725240681, 34.88242493434197], [32.3000401998492, 34.870577452137816], [32.2900283176732, 34.860076274729586], [32.26382238568394, 34.85267159835199], [32.22600150320265, 34.847421009647874], [32.18037814397898, 34.84782490108665], [32.1563697602494, 34.84230505142335], [32.19817443454201, 34.90410044155639], [32.16798988652709, 34.89723428709716], [32.15094500227924, 34.888887197362415], [32.121473738459834, 34.880136216188895], [32.108347615668734, 34.86966609578999], [32.121141953346665, 34.86159738388763], [32.11358253062137, 34.850906340616994], [32.12695518844287, 34.8425350520183], [32.14322435941459, 34.835071493508615], [32.16064272068043, 34.82306928455385], [32.06525940483531, 34.834869775711056], [32.01153634844792, 34.83095689222936], [32.06467657490907, 34.82327100235141], [32.127536430398195, 34.82740621720137]], [2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(60.3980923124338, 5.321736535445991, 'מלון הום האבנקונטורט בברגן', [[60.46444368600508, 7.070500607404774], [60.46997387537984, 6.913431714546659], [60.50203039840591, 6.803483489545979], [60.53736635829316, 6.729436725770012], [60.57597094201803, 6.637439231381687], [60.62993998410787, 6.500564910462472], [60.62773893200973, 6.312082239032736], [60.64534314264172, 6.11462420229682], [60.631040453818855, 5.9396045788263505], [60.59360340811992, 5.8161933058664035], [60.53957357600379, 5.728683494131168], [60.4743973485414, 5.7354150181108015], [60.44009965749914, 5.643417523722478], [60.4998206207743, 6.6733406926063985], [60.45669983789584, 6.55890478495263], [60.432350003256055, 6.419786622706872], [60.390248197799764, 6.27393693648148], [60.37149659381248, 6.09943492983304], [60.389774219066666, 5.9649563981270255], [60.378975043744816, 5.786772343616557], [60.39807884063268, 5.647250866971567], [60.421320513449416, 5.522858225143504], [60.446203886686334, 5.322821409230806], [60.30994200690759, 5.519496261850852], [60.23319478349703, 5.454281537155975], [60.309109392727244, 5.326183372523458], [60.39890918628314, 5.395103620022788]], [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7], 'waze', 'statics/Home_Hotel_Havnekontoret.html')" style="border: 5px solid #0b72b9; ">
         13
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון הום האבנקונטורט בברגן</div>
         </button>
     
-      <button onclick="checkLocation(32.12294265784446, 34.82322311065166, 'מאפיית בייקר בראון', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.392346654063516, 5.325385177527572, 'מאפיית בייקר בראון', [], [], 'google', 'statics/Baker_Brun.html')" style="border: 5px solid #27C82F; ">
         14
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">מאפיית בייקר בראון</div>
         </button>
     
-      <button onclick="checkLocation(32.124614288753996, 34.82308834209987, 'נקודת מפגש לשייט במפרץ מוסטראומן', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.39473469822, 5.323139034997865, 'נקודת מפגש לשייט במפרץ מוסטראומן', [], [], 'google', 'statics/Strandkaien_13.html')" style="border: 5px solid #27C82F; ">
         15
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">נקודת מפגש לשייט במפרץ מוסטראומן</div>
         </button>
@@ -197,22 +174,22 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">7/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(32.12659479277955, 34.823172647143785, 'מדרחוב בריגן', [], [], 'google')" style="border: 5px solid #27C82F; ">
+                  <button onclick="checkLocation(60.397563989685075, 5.324544119062977, 'מדרחוב בריגן', [], [], 'google', 'statics/Bryggen.html')" style="border: 5px solid #27C82F; ">
         16
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">מדרחוב בריגן</div>
         </button>
     
-      <button onclick="checkLocation(32.12462592477799, 34.823210894762944, 'שוק הדגים בברגן', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.394751321111414, 5.325181579382361, 'שוק הדגים בברגן', [], [], 'google', 'statics/Fishmarket_in_Bergen.html')" style="border: 5px solid #27C82F; ">
         17
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">שוק הדגים בברגן</div>
         </button>
     
-      <button onclick="checkLocation(32.12574848296595, 34.823404208685695, 'רכבל פלויבנן', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.39635497566565, 5.328403478094899, 'רכבל פלויבנן', [], [], 'google', 'statics/Floibanen.html')" style="border: 5px solid #27C82F; ">
         18
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">רכבל פלויבנן</div>
         </button>
     
-      <button onclick="checkLocation(32.12635103606617, 34.823104611986075, 'מסעדת יוניקורן פיש', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.39721576580881, 5.323410199767801, 'מסעדת יוניקורן פיש', [], [], 'google', 'statics/The_Unicorn_Fish_Restaurant.html')" style="border: 5px solid #27C82F; ">
         19
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">מסעדת יוניקורן פיש</div>
         </button>
@@ -223,22 +200,22 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">8/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(32.300060516392044, 34.86723394612968, 'מאפיית ווסאבאקט', [[32.17341058020356, 34.92793003644429]], [2.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(60.64537216627435, 6.058899102161327, 'מאפיית ווסאבאקט', [[60.46444368600508, 7.070500607404774]], [7], 'waze', 'statics/VossaBakst_AS.html')" style="border: 5px solid #0b72b9; ">
         20
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מאפיית ווסאבאקט</div>
         </button>
     
-      <button onclick="checkLocation(32.46340148836098, 34.91426698781859, 'עמק הוויקינגים', [[32.12876599611286, 34.823125790759946], [32.171824095691825, 34.823235778171245], [32.16549713138712, 34.830274972494394], [32.14777226043204, 34.83742415422884], [32.16739540559446, 34.84776297089097], [32.22048276388158, 34.84743300865707], [32.27155664111209, 34.85304236663333], [32.29421915762511, 34.86118143506947], [32.30113927949033, 34.87262012584459], [32.28666751262384, 34.88372885438581], [32.32754204395376, 34.891098010942855], [32.36896964675563, 34.893297759168846], [32.40092965532212, 34.897367293386914], [32.41345057343642, 34.90242671430668], [32.44347225340645, 34.909575896041126]], [2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335, 2.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.87871641194426, 6.842783130309827, 'עמק הוויקינגים', [[60.40066570873266, 5.323763179332352], [60.462177279559754, 5.325596302854006], [60.45313875912446, 5.442916208239834], [60.42781751490292, 5.5620692371473135], [60.45585057942066, 5.734382848182747], [60.53168966268797, 5.728883477617786], [60.604652344445846, 5.822372777222117], [60.63702736803587, 5.9580239178244785], [60.64691325641476, 6.148668764076448], [60.62623930374835, 6.3338142397634565], [60.68463149136252, 6.456633515714244], [60.743813781079474, 6.493295986147315], [60.78947093617446, 6.561121556448497], [60.80735796205203, 6.645445238444559], [60.85024607629493, 6.764598267352039]], [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7], 'waze', 'statics/Viking_Valley.html')" style="border: 5px solid #0b72b9; ">
         21
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">עמק הוויקינגים</div>
         </button>
     
-      <button onclick="checkLocation(32.45315550251144, 34.930414864142755, 'חניון בפלום', [[32.4724433550059, 34.926020272465216], [32.465944300557226, 34.91751788260697]], [2.3333333333333335, 2.3333333333333335], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.86407928930206, 7.111914402379143, 'חניון בפלום', [[60.891633364294144, 7.038671207753574], [60.88234900079604, 6.896964710116111]], [7, 7], 'waze', 'statics/Flåm_parkering.html')" style="border: 5px solid #0b72b9; ">
         22
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">חניון בפלום</div>
         </button>
     
-      <button onclick="checkLocation(32.45264268943771, 34.93067388544202, 'מלון פלום פרדמין', [[32.4724433550059, 34.926020272465216], [32.465944300557226, 34.91751788260697]], [2.3333333333333335, 2.3333333333333335], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.86334669919673, 7.1162314240336215, 'מלון פלום פרדמין', [[60.891633364294144, 7.038671207753574], [60.88234900079604, 6.896964710116111]], [7, 7], 'google', 'statics/Flåm_Ferdaminne_AS.html')" style="border: 5px solid #27C82F; ">
         23
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">מלון פלום פרדמין</div>
         </button>
@@ -249,17 +226,17 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">9/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(32.45241784616591, 34.93057540688463, 'רכבת פלם', [], [], 'google')" style="border: 5px solid #27C82F; ">
+                  <button onclick="checkLocation(60.863025494522724, 7.114590114743707, 'רכבת פלם', [], [], 'google', 'statics/Flåmsbana.html')" style="border: 5px solid #27C82F; ">
         24
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">רכבת פלם</div>
         </button>
     
-      <button onclick="checkLocation(32.452938096149005, 34.930720974595594, 'פאב אייגיר', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.86376870878429, 7.117016243259797, 'פאב אייגיר', [], [], 'google', 'statics/Ægir_BrewPub.html')" style="border: 5px solid #27C82F; ">
         25
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">פאב אייגיר</div>
         </button>
     
-      <button onclick="checkLocation(32.45231372267575, 34.93057427557005, 'שייט במפרץ נארוי', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(60.86287674667964, 7.114571259500795, 'שייט במפרץ נארוי', [], [], 'google', 'statics/Fjord_Cruise_Aurlandsfjord.html')" style="border: 5px solid #27C82F; ">
         26
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">שייט במפרץ נארוי</div>
         </button>
@@ -270,64 +247,89 @@
                 <h2 style="margin: 0; padding: 0 1em; width: fit-content;">10/08</h2>
                 <div style="flex: 1; border-bottom: 1px solid #000; border-top: 1px solid #000;"></div>
             </div>
-                  <button onclick="checkLocation(32.48402492982196, 34.936480191860745, 'חניון סטגסטיין', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+                  <button onclick="checkLocation(60.90817847117424, 7.213003197679032, 'חניון סטגסטיין', [], [], 'waze', 'statics/Stegastein_Parking.html')" style="border: 5px solid #0b72b9; ">
         27
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">חניון סטגסטיין</div>
         </button>
     
-      <button onclick="checkLocation(32.58236439674902, 34.972555621965796, 'כנסיית העץ בורגונד', [[32.4648068857277, 34.9327640951738], [32.47836892552932, 34.9348240316044], [32.491922730764664, 34.9389439043616], [32.504534391928715, 34.94158062299276], [32.521805455934754, 34.944464533995585], [32.53999560014537, 34.94833721448511], [32.55863671791757, 34.950644343287365], [32.579123898821706, 34.95270427971796], [32.5865690970985, 34.955176203434675], [32.583777440523534, 34.95896648646696], [32.583777440523534, 34.962921564413705], [32.584242741016304, 34.96621746270265], [32.584242741016304, 34.9698429508205]], [0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334, 0.8333333333333334], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(61.048663423927174, 7.814260366096567, 'כנסיית העץ בורגונד', [[60.88072412246814, 7.151068252896669], [60.900098465041886, 7.185400526739893], [60.91946104394952, 7.254065072693247], [60.93747770275531, 7.2980103832125724], [60.962150651335364, 7.346075566593083], [60.98813657163624, 7.41062024141834], [61.01476673988225, 7.449072388122749], [61.04403414117387, 7.483404661965972], [61.05467013871214, 7.524603390577839], [61.05068205789077, 7.587774774449368], [61.05068205789077, 7.653692740228355], [61.051346772880436, 7.708624378377511], [61.051346772880436, 7.769049180341582]], [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5], 'waze', 'statics/Borgund_Stave_Church.html')" style="border: 5px solid #0b72b9; ">
         28
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">כנסיית העץ בורגונד</div>
         </button>
     
-      <button onclick="checkLocation(32.60450865844848, 34.97459117378931, 'תחנת דלק בורגונד', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(61.08029808349784, 7.848186229821723, 'תחנת דלק בורגונד', [], [], 'waze', 'statics/Borgund_Servicesenter_AS.html')" style="border: 5px solid #0b72b9; ">
         29
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">תחנת דלק בורגונד</div>
         </button>
     
-      <button onclick="checkLocation(32.6060418958685, 34.97496435230999, 'מאפיית בורגונד', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(61.08248842266929, 7.854405871833045, 'מאפיית בורגונד', [], [], 'google', 'statics/Borgund_Vedovnsbakeri.html')" style="border: 5px solid #27C82F; ">
         30
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">מאפיית בורגונד</div>
         </button>
     
-      <button onclick="checkLocation(32.443034415539046, 35.02071538973727, 'מסעדת צ'יינה גארדן', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.84962059362721, 8.616923162287812, 'מסעדת צ'יינה גארדן', [], [], 'waze', 'statics/China_Garden_Restaurant_Hemsedalsvegen.html')" style="border: 5px solid #0b72b9; ">
         31
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת צ'יינה גארדן</div>
         </button>
     
-      <button onclick="checkLocation(32.338861273499944, 35.04065505965728, 'מסעדת בורט פיוזן', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.70080181928564, 8.94925099428799, 'מסעדת בורט פיוזן', [], [], 'waze', 'statics/Borts_Fusion_Restaurant.html')" style="border: 5px solid #0b72b9; ">
         32
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת בורט פיוזן</div>
         </button>
     
-      <button onclick="checkLocation(32.338979929097604, 35.0408171451954, 'מסעדת מינג בייג'ינג האוס', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.700971327282296, 8.951952419923199, 'מסעדת מינג בייג'ינג האוס', [], [], 'waze', 'statics/Ming_Beijing_House.html')" style="border: 5px solid #0b72b9; ">
         33
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת מינג בייג'ינג האוס</div>
         </button>
     
-      <button onclick="checkLocation(32.114930423263125, 35.080292090257835, 'מסעדת האלינגפורטן קרו ואסיאמאט', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.38090060466161, 9.60986817096384, 'מסעדת האלינגפורטן קרו ואסיאמאט', [], [], 'waze', 'statics/Hallingporten_Kro_og_Asiamat_AS.html')" style="border: 5px solid #0b72b9; ">
         34
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת האלינגפורטן קרו ואסיאמאט</div>
         </button>
     
-      <button onclick="checkLocation(31.8925965810979, 35.12231220910564, 'מלון סונדוולדן', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(60.06328083013986, 10.310203485093925, 'מלון סונדוולדן', [], [], 'waze', 'statics/Sundvolden_Hotel.html')" style="border: 5px solid #0b72b9; ">
         35
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון סונדוולדן</div>
         </button>
     
-      <button onclick="checkLocation(31.7856432349957, 35.1471544703777, 'חניון איימו פארק', [], [], 'waze')" style="border: 5px solid #0b72b9; ">
+      <button onclick="checkLocation(59.91049033570815, 10.724241172961621, 'חניון איימו פארק', [], [], 'waze', 'statics/Aimo_Park___Aker_Brygge_P-hus.html')" style="border: 5px solid #0b72b9; ">
         36
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">חניון איימו פארק</div>
         </button>
     
-      <button onclick="checkLocation(31.784578770329905, 35.14723571383235, 'טיילת נמל אקר בריגה', [], [], 'google')" style="border: 5px solid #27C82F; ">
+      <button onclick="checkLocation(59.90896967189987, 10.725595230539124, 'טיילת נמל אקר בריגה', [], [], 'google', 'statics/Aker_Brygge_Promenade.html')" style="border: 5px solid #27C82F; ">
         37
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">טיילת נמל אקר בריגה</div>
         </button>
     
-      <button onclick="checkLocation(31.793896105252877, 35.148798504431596, 'שוק מאטהלן אוסלו', [], [], 'taxi')" style="border: 5px solid #E5C740; ">
+      <button onclick="checkLocation(59.92225948655396, 10.751672382538482, 'שוק מאטהלן אוסלו', [], [], 'taxi', 'statics/Mathallen_Oslo.html')" style="border: 5px solid #C08703; ">
         38
         <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">שוק מאטהלן אוסלו</div>
+        </button>
+    
+      <button onclick="checkLocation(59.9173308419907, 10.77021244111759, 'הגן הבוטני של אוסלו', [], [], 'taxi', 'statics/Oslo_Botanical_Garden.html')" style="border: 5px solid #C08703; ">
+        39
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">הגן הבוטני של אוסלו</div>
+        </button>
+    
+      <button onclick="checkLocation(59.91367852249773, 10.766090154461526, 'בית קפה פאפגוי', [], [], 'google', 'statics/Papegøye.html')" style="border: 5px solid #27C82F; ">
+        40
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #000000;">בית קפה פאפגוי</div>
+        </button>
+    
+      <button onclick="checkLocation(59.91043401431247, 10.724347240010202, 'חניון איימו פארק', [], [], 'taxi', 'statics/Aimo_Park___Aker_Brygge_P_hus.html')" style="border: 5px solid #C08703; ">
+        41
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">חניון איימו פארק</div>
+        </button>
+    
+      <button onclick="checkLocation(59.93290209821618, 10.880994497313374, 'מסעדת טורקיש קיוקן', [], [], 'waze', 'statics/Tyrkisk_kjøkken.html')" style="border: 5px solid #0b72b9; ">
+        42
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מסעדת טורקיש קיוקן</div>
+        </button>
+    
+      <button onclick="checkLocation(60.164242753293536, 11.162264875483803, 'מלון קווליטי גארדרמואן', [], [], 'waze', 'statics/Quality_Airport_Hotel_Gardermoen.html')" style="border: 5px solid #0b72b9; ">
+        43
+        <div style="white-space: pre-wrap; font-size: 0.4em; margin-top: 0.3em; color: #ffffff;">מלון קווליטי גארדרמואן</div>
         </button>
     
 

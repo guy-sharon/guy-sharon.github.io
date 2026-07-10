@@ -38,32 +38,10 @@
 
   <script>
         // Function to check user's location
-        function open_navigation(destLat, destLng, mode, placeName) {
+        function open_navigation(destLat, destLng, mode, placeName, taxiPath) {
             if (mode === 'taxi') {
-                const imageUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${destLat},${destLng}&zoom=17&size=900x600&markers=${destLat},${destLng},red-pushpin`;
-                const html = `
-                    <html>
-                    <head>
-                        <title>${placeName} - Taxi Map</title>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <style>body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fa; color: #111; text-align: center; }</style>
-                    </head>
-                    <body>
-                        <div style="padding: 1rem;">
-                            <h1 style="margin-bottom: 0.5rem;">${placeName}</h1>
-                            <p style="margin-top: 0; color: #444;">Show this screen to the taxi driver.</p>
-                        </div>
-                        <img src="${imageUrl}" alt="${placeName}" style="max-width:100%; height:auto; border-radius: 12px; border: 1px solid #ccc;">
-                        <div style="padding: 1rem; color: #333; font-size: 0.95rem;">
-                            <div><strong>Address:</strong> ${placeName}</div>
-                            <div><strong>Coordinates:</strong> ${destLat.toFixed(6)}, ${destLng.toFixed(6)}</div>
-                        </div>
-                    </body>
-                    </html>`;
-                window.open('data:text/html;charset=utf-8,' + encodeURIComponent(html), '_blank');
-                return;
-            }
-            if (mode === 'waze') {
+                window.location.href = taxiPath;
+            } else if (mode === 'waze') {
                 window.location.href = `https://waze.com/ul?ll=${destLat},${destLng}&navigate=yes`;
             } else {
                 window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=walking`;
@@ -83,10 +61,9 @@
             return distance;
         }
 
-        function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, mode) {
-            // Skip geolocation checks and immediately open the requested navigation mode.
-            // This makes the button always direct to the chosen navigation/taxi view.
-            open_navigation(destLat, destLng, mode, placeName);
+        function checkLocation(destLat, destLng, placeName, verified_locations, verify_dists_km, mode, taxiPath) {
+            // Skip geolocation checks and immediately open the requested navigation/taxi view.
+            open_navigation(destLat, destLng, mode, placeName, taxiPath);
         }
     </script>
 </head>
