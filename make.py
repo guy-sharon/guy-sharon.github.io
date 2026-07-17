@@ -204,6 +204,10 @@ places = [
      ],
      "verify_dists_km": [7]},
     
+    {"name": "AS Bryggestuen - Bryggeloftet", "hebrew_name": "מסעדת בריגסטואן בריגלופט",
+     "location": [60.39642978465158, 5.324674741543041],
+     "waze": False},
+    
     {"name": "Baker Brun", "hebrew_name": "מאפיית בייקר בראון",
      "location": [60.392346654063516, 5.325385177527572],
      "waze": False},
