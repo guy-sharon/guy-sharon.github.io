@@ -204,7 +204,7 @@ places = [
      ],
      "verify_dists_km": [7]},
     
-    {"name": "AS Bryggestuen - Bryggeloftet", "hebrew_name": "מסעדת בריגסטואן בריגלופט",
+    {"name": "AS Bryggestuen – Bryggeloftet", "hebrew_name": "מסעדת בריגסטואן בריגלופט",
      "location": [60.39642978465158, 5.324674741543041],
      "waze": False},
     
@@ -355,6 +355,7 @@ places = [
     {"name": "Sundvolden Hotel", "hebrew_name": "מלון סונדוולדן",
      "location": [60.06328083013986, 10.310203485093925]},
     
+    None,
     
     ################################# DAY 8 ##############################
     {"name": "Aimo Park | Aker Brygge P-hus", "hebrew_name": "חניון איימו פארק",
@@ -384,7 +385,13 @@ places = [
      "location": [59.93290209821618, 10.880994497313374]},
     
     {"name": "Quality Airport Hotel Gardermoen", "hebrew_name": "מלון קווליטי גארדרמואן",
-     "location": [60.164242753293536, 11.162264875483803]}
+     "location": [60.164242753293536, 11.162264875483803]},
+    
+    None,
+    
+    ################################# DAY 9 (LAST) ##############################
+    {"name": "Airport P10 Parkering", "hebrew_name": "חניון P10 בשדה התעופה אוסלו",
+     "location": [60.19260972848419, 11.10108371121301]}
 ]
 
 TAB = "  "
@@ -861,7 +868,7 @@ if __name__ == "__main__":
         
     htmlfile = make_html()
 
-    # validate_word()
+    validate_word()
     # open_html(htmlfile)
     plot_places(places, overview_only=True)
     # plot_route(places)
