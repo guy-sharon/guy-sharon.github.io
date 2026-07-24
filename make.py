@@ -384,6 +384,9 @@ places = [
     {"name": "Tyrkisk kjøkken", "hebrew_name": "מסעדת טורקיש קיוקן",
      "location": [59.93290209821618, 10.880994497313374]},
     
+    {"name": "Esso Jessheim", "hebrew_name": "תחנת דלק אסו ג'סהיים",
+         "location": [60.16378374472194, 11.159997138525556]},
+    
     {"name": "Quality Airport Hotel Gardermoen", "hebrew_name": "מלון קווליטי גארדרמואן",
      "location": [60.164242753293536, 11.162264875483803]},
     
