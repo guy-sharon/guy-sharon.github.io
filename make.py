@@ -764,7 +764,7 @@ def make_button(place):
     # determine button colors by transport mode
     mode = place.get('mode') or ('waze' if place.get('waze', True) else 'google')
     bg = color_map.get(mode, '#0b72b9')
-    fg = '#ffffff' if mode in ('waze', 'taxi') else '#000000'
+    fg = '#ffffff' #if mode in ('waze', 'taxi') else '#000000'
 
     s = f"""<button onclick="{make_check_location(place)}" style="border: 5px solid {bg}; ">
         {place["id"]}
