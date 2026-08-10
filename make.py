@@ -340,13 +340,13 @@ places = [
      "location": [61.08248842266929, 7.854405871833045],
      "waze": False},
     
-    {"name": "China Garden Restaurant Hemsedalsvegen", "hebrew_name": "מסעדת צ'יינה גארדן",
+    {"name": "China Garden Restaurant Hemsedalsvegen", "hebrew_name": "מסעדת ציינה גארדן",
      "location": [60.84962059362721, 8.616923162287812]},
     
     {"name": "Borts Fusion Restaurant", "hebrew_name": "מסעדת בורט פיוזן",
      "location": [60.70080181928564, 8.94925099428799]},
     
-    {"name": "Ming Beijing House", "hebrew_name": "מסעדת מינג בייג'ינג האוס",
+    {"name": "Ming Beijing House", "hebrew_name": "מסעדת מינג בייגינג האוס",
      "location": [60.700971327282296, 8.951952419923199]},
     
     {"name": "Hallingporten Kro og Asiamat AS", "hebrew_name": "מסעדת האלינגפורטן קרו ואסיאמאט",
@@ -384,7 +384,7 @@ places = [
     {"name": "Tyrkisk kjøkken", "hebrew_name": "מסעדת טורקיש קיוקן",
      "location": [59.93290209821618, 10.880994497313374]},
     
-    {"name": "Esso Jessheim", "hebrew_name": "תחנת דלק אסו ג'סהיים",
+    {"name": "Esso Jessheim", "hebrew_name": "תחנת דלק אסו גסהיים",
          "location": [60.16378374472194, 11.159997138525556]},
     
     {"name": "Quality Airport Hotel Gardermoen", "hebrew_name": "מלון קווליטי גארדרמואן",
